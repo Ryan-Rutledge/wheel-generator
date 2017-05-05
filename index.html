@@ -10,7 +10,7 @@
 		<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/dragula/3.7.2/dragula.min.css" />
 		<link rel="stylesheet" href="styles.css" />
 	</head>
-	<body onload="WG.formInit($('.figure-form'))">
+	<body onload="WG.init($('.figure-form'), $('.moveset'))">
 		<div class="header">
 			<h1 class="text-center mt-4 mb-4">Wheel Generator</h2>
 		</div>
@@ -28,7 +28,7 @@
 									</fieldset>
 
 									<fieldset class="form-group col-sm-4 col-12">
-										<label>Figure Type</label>
+										<label>Figure Type 1</label>
 										<select type="select" class="form-control" name="figure_type_1">
 											<option value="" selected>Not Provided</option>
 											<option>Normal</option>
@@ -53,7 +53,7 @@
 									</fieldset>
 
 									<fieldset class="form-group col-sm-4 col-12">
-										<label>Figure Type</label>
+										<label>Figure Type 2</label>
 										<select type="select" class="form-control" name="figure_type_2">
 											<option value="" selected>Not Provided</option>
 											<option>Normal</option>
@@ -90,7 +90,7 @@
 
 									<fieldset class="form-group col-sm-6 col-12">
 										<label>Figure Ability</label>
-										<input type="text" class="form-control" name="figure_ability_name" placeholder="None" value="">
+										<input type="text" class="form-control" name="figure_ability_name" placeholder="None" autocomplete="off" value="">
 									</fieldset>
 								</div>
 
@@ -99,9 +99,9 @@
 									<textarea type="text" class="form-control" name="figure_ability"></textarea>
 								</fieldset>
 
-								<h3>Segments</h3>
+								<h3 class="mt-4 mb-2">Segments</h3>
 								<div class="segments">
-									<div class="segment p-2 mb-4 rounded">
+									<div class="segment p-2 mb-2 rounded">
 										<h5>Segment</h5>
 										<i class="fa fa-times delete-segment"></i>
 										<fieldset class="form-group">
@@ -116,16 +116,20 @@
 														<button type="button" value="BLUE" data-val="Blue" href="#" class="dropdown-item dropdown-item-option segment-type">Blue (Defend)</button>
 													</div>
 												</div>
-												<input class="input-group-addon" type="number" name="segment_size" min="0" max="96" step="4" value="8" placeholder="size"></input>
 
-												<input type="text" class="form-control" name="segment_name" placeholder="Miss" value="">
+												<input type="number" class="input-group-addon" name="segment_size" min="4" max="96" step="4" value="12" placeholder="size" autocomplet="off"></input>
+
+												<input type="text" class="form-control" name="segment_name" placeholder="Miss" value="Miss" autocomplete="off">
+
+												<input type="number" class="input-group-addon" name="segment_damage" placeholder="dmg" min="0" step="10" autocomplete="off">
+
 												<div class="input-group-btn">
 													<button type="button" class="btn btn-secondary dropdown-toggle dropdown-select" name="segment_modifier" data-toggle="dropdown" value=""></button>
 													<div class="dropdown-menu dropdown-menu-right">
 														<button type="button" value=""  data-val="" href="#" class="dropdown-item dropdown-item-option segment-modifier">No Effect</button>
-														<button type="button" value="+" data-val="<i class='fa fa-plus'></i>" href="#" class="dropdown-item dropdown-item-option segment-modifier"><i class="fa fa-plus"></i></button>
 														<button type="button" value="*" data-val="<i class='fa fa-asterisk'></i>" href="#" class="dropdown-item dropdown-item-option segment-modifier"><i class="fa fa-asterisk"></i></button>
 														<button type="button" value="x" data-val="<i class='fa fa-times'></i>" href="#" class="dropdown-item dropdown-item-option segment-modifier"><i class="fa fa-times"></i></button>
+														<button type="button" value="+" data-val="<i class='fa fa-plus'></i>" href="#" class="dropdown-item dropdown-item-option segment-modifier"><i class="fa fa-plus"></i></button>
 													</div>
 												</div>
 												<div class="input-group-btn">
@@ -133,7 +137,7 @@
 													<div class="dropdown-menu dropdown-menu-right">
 														<button type="button" value="1" data-val="<i class='fa fa-star'></i>" href="#" class="dropdown-item dropdown-item-option segment-stars"><i class="fa fa-star"></i></button>
 														<button type="button" value="2" data-val="<i class='fa fa-star'></i><i class='fa fa-star'></i>" href="#" class="dropdown-item dropdown-item-option segment-stars"><i class="fa fa-star"></i><i class="fa fa-star"></i></button>
-														<button type="button" value="1" data-val="<i class='fa fa-star'></i><i class='fa fa-star'></i><i class='fa fa-star'></i>" href="#" class="dropdown-item dropdown-item-option segment-stars"><i class="fa fa-star"></i><i class="fa fa-star"></i><i class="fa fa-star"></i></button>
+														<button type="button" value="3" data-val="<i class='fa fa-star'></i><i class='fa fa-star'></i><i class='fa fa-star'></i>" href="#" class="dropdown-item dropdown-item-option segment-stars"><i class="fa fa-star"></i><i class="fa fa-star"></i><i class="fa fa-star"></i></button>
 													</div>
 												</div>
 											</div>
@@ -143,21 +147,32 @@
 											<label>Segment Effect</label>
 											<textarea type="text" class="form-control" name="segment_effect" placeholder="None" value=""></textarea>
 										</fieldset>
-
-										<fieldset class="form-group">
-											<label>Damage</label>
-											<input type="number" class="form-control" name="segment_damage" placeholder="10" min="0" step="10" value="10">
-										</fieldset>
 									</div>
 								</div>
 
 								<fieldset class="form-group">
-									<button class="btn btn-primary btn-block new-segment">Add Segment</button>
+									<button type="button" class="btn btn-outline-primary btn-block new-segment mt-4" autocomplete="off">Add Segment</button>
 								</fieldset>
 
-								<fieldset class="form-group text-center card p-4 mt-4">
-									Wheel goes here
-								</fieldset>
+								<div class="row">
+									<div class="col">
+										<fieldset class="form-group text-center card card-inverse p-4 mt-4">
+											Wheel goes here
+										</fieldset>
+									</div>
+
+									<div class="col">
+										<fieldset class="form-group text-center card card-inverse p-4 mt-4">
+											<table class="moveset table table-bordered table-sm">
+												<thead>
+													<th class="text-center move-size">Size</th>
+													<th class="text-center move-name">Attack</th>
+													<th class="text-center move-damage">Damage</th>
+												</thead>
+											</table>
+										</fieldset>
+									</div>
+								</div>
 							</form>
 						</div>
 					</div>

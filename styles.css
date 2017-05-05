@@ -1,3 +1,4 @@
+
 [name="segment_stars"] {
 	font-family: FontAwesome;
 	font-style: normal;
@@ -9,6 +10,25 @@
 
 [name="segment_size"] {
 	background-color: #fff;
+	max-width: 6em;
+}
+
+[name="segment_damage"] {
+	background-color: #fff;
+	max-width: 6em;
+}
+
+.segments, .move {
+	cursor: move;
+	cursor: grab;
+    cursor: -moz-grab;
+    cursor: -webkit-grab;
+}
+
+.gu-mirror {
+    cursor: grabbing;
+    cursor: -moz-grabbing;
+    cursor: -webkit-grabbing;
 }
 
 .segments {
@@ -17,14 +37,20 @@
 
 .segment {
 	position: relative;
-	cursor: move;
-	cursor: grab;
 	transition: background-color 400ms, opacity 400ms;
 }
 
-.segment h5::after {
+.segment h5 {
+	font-weight: bold;
+}
+
+.segment h5:after {
 	counter-increment: segment;
-	content: ' ' counter(segment) ': ';
+	content: " " counter(segment) ": ";
+}
+
+.segment.gu-mirror h5:after {
+	content: " ?: ";
 }
 
 .segment > .delete-segment {
@@ -34,4 +60,84 @@
 	display: block;
 	cursor: pointer;
 	font-size: 24px;
+}
+
+.moveset {
+	border-collapse: separate;
+	border-spacing: 0;
+	background-color: #111;
+	border-color: #111;
+	color: #000;
+}
+
+.moveset th {
+	border-width: 0 1px !important;
+}
+.moveset th:first-child {
+	border-left-width: 4px;
+}
+.moveset th:last-child {
+	border-right-width: 4px;
+}
+
+.moveset thead {
+	background-color: #015;
+	color: #77b;
+}
+
+.move .separator {
+	height: 2px;
+}
+
+.move tr:nth-child(2) td {
+	background-color: #eee;
+}
+
+.move.red-move tr:first-child td {
+	background-color: #E04C4C;
+}
+.move.red-move td {
+	border-color: #D42525;
+}
+.move.white-move tr:first-child td {
+	background-color: #EEE;
+}
+.move.white-move td {
+	border-color: #D4D4D4;
+}
+.move.gold-move tr:first-child td {
+	background-color: #EDB34B;
+}
+.move.gold-move td {
+	border-color: #E89F1D;
+}
+.move.purple-move tr:first-child td {
+	background-color: #CA6FE6;
+}
+.move.purple-move td {
+	border-color: #BA44DE;
+}
+.move.blue-move tr:first-child td {
+	background-color: #52BCE8;
+}
+.move.blue-move td {
+	border-color: #25ABE2;
+}
+
+.moveset td, .moveset th, .moveset thead {
+	border-color: #111;
+}
+
+.move .move-size { width: 3em; }
+.move .move-damage { width: 4em; }
+
+.move.gu-mirror {
+	width: 100%;
+	display: table;
+	border-color: #111;
+}
+
+.card-inverse {
+	background-color: #111;
+	border-color: #222;
 }
