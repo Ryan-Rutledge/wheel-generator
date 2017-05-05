@@ -1,0 +1,37 @@
+[name="segment_stars"] {
+	font-family: FontAwesome;
+	font-style: normal;
+}
+
+[name="segment_name"] {
+	border-color: #ddd;
+}
+
+[name="segment_size"] {
+	background-color: #fff;
+}
+
+.segments {
+	counter-reset: segment;
+}
+
+.segment {
+	position: relative;
+	cursor: move;
+	cursor: grab;
+	transition: background-color 400ms, opacity 400ms;
+}
+
+.segment h5::after {
+	counter-increment: segment;
+	content: ' ' counter(segment) ': ';
+}
+
+.segment > .delete-segment {
+	position: absolute;
+	top: 4px;
+	right: 4px;
+	display: block;
+	cursor: pointer;
+	font-size: 24px;
+}
