@@ -15,10 +15,61 @@ var WG = {
 		PURPLE: '#BA44DE',
 		BLUE: '#25ABE2'
 	},
-	init: function($form, $moveset) {
-		var form = new WG.Form($form);
-		var moveset = new WG.Moveset($moveset, form);
+	init: function($form, $display) {
+		form = new WG.Form($form);
+		//wheel = new WG.Wheel($display.find('.figure-wheel'));
+		header = new WG.Header($display.find('.figure-header'));
+		moveset = new WG.Moveset($display.find('.figure-moveset'));
+		display = new WG.Display(form, null, header, moveset, $display.find('.figure-display-notification'));
+	},
+	Display: function(form, wheel, header, moveset, $notification) {
+		var self = this;
+		self.$notification = $notification;
+
+		moveset.drake.on('drag', function(el) {
+			index = $(el).index() - 1;
+		});
+		
+		moveset.drake.on('drop', function(el) {
+			var new_index = $(el).index() - 1;
+			form.move(index, new_index);
+			index = undefined;
+		});
+
+		form.onChange(function(figure) {
+			if (figure.error) {
+				self.notify(figure.error);
+			}
+			else {
+				self.notify();
+				moveset.update.call(moveset, figure);
+				header.update.call(header, figure);
+				//wheel.update(figure);
+			}
+		});
+
 		form.change();
+	},
+	Header: function($header) {
+		var self = this;
+		self.$header = $header;
+	},
+	Moveset: function($moveset) {
+		var self = this;
+		self.$moveset = $moveset;
+		var index;
+
+		self.drake = dragula([$moveset.get(0)], {
+			moves: function(el, source) {
+				return $(el).is('.figure-move');
+			},
+			accepts: function(el, target, source, sibling) {
+				return $(sibling).is('.figure-move');
+			},
+			direction: 'vertical',
+			ignoreInputTextSelection: true,
+			mirrorContainer: $moveset.get(0)
+		});
 	},
 	Form: function($form) {
 		var self = this;
@@ -40,7 +91,8 @@ var WG = {
 			var $this = $(this);
 			var $segment = $this.closest('.segment');
 			var $menu = $this.parent().prev();
-			var $modifier = $segment.find('[name="segment_modifier"]');
+			var $spinMod = $segment.find('[name="segment_spin_modifier"]');
+			var $effectMod = $segment.find('[name="segment_effect_modifier"]');
 			var $stars = $segment.find('[name="segment_stars"]');
 			var $effect = $segment.find('[name="segment_effect"]').parent();
 			var $damage = $segment.find('[name="segment_damage"]');
@@ -52,52 +104,77 @@ var WG = {
 
 			switch (color) {
 				case 'RED':
-					$modifier.hide();
+					$spinMod.hide();
+					$effectMod.hide();
 					$stars.hide();
 					$effect.slideUp();
 					$damage.hide();
 
-					$name.val('Miss');
 					$name.attr('placeholder', 'Miss');
+					$name.val('Miss');
 					break;
 				case 'WHITE':
 				case 'GOLD':
 					$stars.hide();
-					$modifier.show();
+					$spinMod.show();
+					$effectMod.show();
 
 					if ($effect.is(':hidden')) {
-						$modifier.next().children(':first').click();
+						$spinMod.next().children(':first').click();
+						$effectMod.next().children(':first').click();
 					}
 					else {
-						$($modifier.next().children()[1]).click();
+						$spinMod.next().children().eq(1).click();
+						$effectMod.next().children().eq(1).click();
 					}
 					$damage.show();
 
 					$name.attr('placeholder', 'Quick Attack');
+					if (!$name.val() || $name.val() === 'Miss') {
+						$name.val(color === 'GOLD' ? 'Quick Attack' : 'Scratch');
+						$damage.val(20);
+					}
 					break;
 				case 'PURPLE':
-					$modifier.hide();
+					$spinMod.hide();
+					$effectMod.hide();
 					$stars.show();
 					$stars.next().children(':first').click();
 					$effect.slideDown();
 					$damage.hide();
 
-					$name.attr('placeholder', 'Confuse');
+					$name.attr('placeholder', 'Confusion');
+					if (!$name.val() || $name.val() === 'Miss') { $name.val('Confusion'); }
 					break;
 				case 'BLUE':
 					$stars.hide();
-					$modifier.hide();
+					$spinMod.hide();
+					$effectMod.hide();
 					$effect.slideDown();
 					$damage.hide();
 
-					$name.val('Dodge');
+					if (!$name.val() || $name.val() === 'Miss') { $name.val('Dodge'); }
 					$name.attr('placeholder', 'Dodge');
 					break;
 			}
 		});
 
-		// Handle segment modifier change
-		$form.find('.segment-modifier').click(function() {
+		// Handle segment spin modifier change
+		$form.find('.segment-spin-modifier').click(function() {
+			var $this = $(this);
+			var $segment = $this.closest('.segment');
+			var $effect = $segment.find('[name="segment_spin_effect"]').parent();
+
+			if ($this.val()) {
+				$effect.slideDown();
+			}
+			else {
+				$effect.slideUp();
+			}
+		});
+
+		// Handle segment effect modifier change
+		$form.find('.segment-effect-modifier').click(function() {
 			var $this = $(this);
 			var $segment = $this.closest('.segment');
 			var $effect = $segment.find('[name="segment_effect"]').parent();
@@ -111,8 +188,8 @@ var WG = {
 		});
 
 		// Handle abliity change
-		$form.find('[name="figure_ability_name"]').keyup(function() {
-			var $ability = $('[name="figure_ability"]').parent();
+		$form.find('[name="figure_ability"]').change(function() {
+			var $ability = $('[name="figure_effect"]').parent();
 			if ($(this).val()) {
 				$ability.slideDown();
 			}
@@ -122,8 +199,9 @@ var WG = {
 		});
 
 		// Hide unnecessary content
-		$form.find('[name="figure_ability"]').parent().hide();
+		$form.find('[name="figure_effect"]').parent().hide();
 		$form.find('[name="segment_effect"]').parent().hide();
+		$form.find('[name="segment_spin_effect"]').parent().hide();
 		$form.find('[name="segment_damage"]').hide();
 
 		// Set default segment type
@@ -135,12 +213,7 @@ var WG = {
 				$(this).closest('.segment').animate(
 					{ opacity: 0, height: 0, padding: 0, margin: 0},
 					{ duration: 400, queue: false, complete: function() {
-						if ($(this).find('[name="segment_size"]').val()) {
-							$form.find('.new-segment').prop('disabled', self.total($form) >= WG.WHEEL_SIZE);
-						}
-
 						$(this).remove();
-
 						self.change.call(self);
 					} });
 			})
@@ -173,13 +246,11 @@ var WG = {
 			if (total > WG.WHEEL_SIZE) {
 				$(this).val(WG.WHEEL_SIZE + parseInt($(this).val()) - self.total($form));
 			}
+
+			// Make sure size is below max
 			if ($(this).val() < WG.MIN_SIZE) {
 				$(this).val(WG.MIN_SIZE);
 			}
-
-			// Disable/enable new segement button
-			total = self.total($form)
-			$form.find('.new-segment').prop('disabled', total >= WG.WHEEL_SIZE);
 		});
 
 		$form.find('textarea, input, [name]').change(function() {
@@ -194,44 +265,24 @@ var WG = {
 			var max = WG.WHEEL_SIZE - self.total($form);
 
 			var $newSegment = $segmentClone.clone(true).hide();
+
+			// If next to a miss
+			if (self.$segments.children(':first, :last').find('[name="segment_type"][value="RED"]').get(0)) {
+				// Add white segment
+				$newSegment.find('.segment-type[value="WHITE"]').click();
+			}
+
+			// Add segment
 			$form.find('.segments').append($newSegment);
+
+			// Set segment width
 			$newSegment.find('[name="segment_size"]')
 				.attr('max', max)
 				.val(Math.min(12, max));
+
+			// animate insertion
 			$newSegment.slideDown();
-			$form.find('.new-segment').prop('disabled', self.total($form) >= WG.WHEEL_SIZE);
 			self.change.call(self);
-		});
-	},
-	Moveset: function($moveset, form) {
-		var self = this;
-		self.$moveset = $moveset;
-		var index;
-		var drake = dragula([$moveset.get(0)], {
-			moves: function(el, source) {
-				return $(el).is('.move');
-			},
-			accepts: function(el, target, source, sibling) {
-				return $(sibling).is('.move');
-			},
-			direction: 'vertical',
-			ignoreInputTextSelection: true,
-			mirrorContainer: $moveset.get(0)
-		})
-
-		drake.on('drag', function(el) {
-			index = $(el).index() - 1;
-		});
-		
-		drake.on('drop', function(el) {
-			var new_index = $(el).index() - 1;
-			form.move(index, new_index);
-			index = undefined;
-		});
-
-		form.onChange(function(figure) {
-			$moveset.find('tbody').remove();
-			$moveset.append(self.generate(figure));
 		});
 	},
 	wheel: {
@@ -244,7 +295,8 @@ var WG = {
 WG.Form.prototype.total = function() {
 	var self = this;
 	var total = 0;
-	self.$form.find('[name="segment_size"]').each(function() { total += parseInt($(this).val());
+	self.$form.find('[name="segment_size"]').each(function() {
+		total += parseInt($(this).val());
 	});
 
 	return total;
@@ -254,16 +306,21 @@ WG.Form.prototype.generateSegment = function($segment) {
 	segment = {};
 
 	segment.name = $segment.find('[name="segment_name"]').val();
-	segment.type = $segment.find('[name="segment_type"]').val();
 	segment.size = $segment.find('[name="segment_size"]').val();
+	segment.type = $segment.find('[name="segment_type"]').val();
 
 	switch (segment.type) {
 		case 'WHITE':
 		case 'GOLD':
 			segment.damage = $segment.find('[name="segment_damage"]').val();
-			segment.modifier = $segment.find('[name="segment_modifier"]').val();
+			segment.spinMod = $segment.find('[name="segment_spin_modifier"]').val();
+			segment.effectMod = $segment.find('[name="segment_effect_modifier"]').val();
 
-			if (segment.modifier) {
+			if (segment.spinMod) {
+				segment.spin = $segment.find('[name="segment_spin_effect"]').val();
+			}
+
+			if (segment.effectMod) {
 				segment.effect = $segment.find('[name="segment_effect"]').val();
 			}
 			break;
@@ -282,14 +339,22 @@ WG.Form.prototype.generateSegment = function($segment) {
 WG.Form.prototype.generateFigure = function() {
 	var self = this;
 	var figure = {};
+	var total = self.total();
+	if (total !== WG.WHEEL_SIZE) { return { error: 'Wheel size must be 96, but is currently ' + total + '.' }; }
 
-	figure.name     = self.$form.find('[name="figure_name"]').val();
-	figure.types    = [self.$form.find('[name="figure_type_1"]').val(), self.$form.find('[name="figure_type_2"]').val()];
-	figure.mp       = self.$form.find('[name="figure_mp"]').val();
-	figure.ability  = self.$form.find('[name="figure_ability_name"]').val();
+	var type1 = self.$form.find('[name="figure_type_1"]').val();
+	var type2 = self.$form.find('[name="figure_type_2"]').val();
 
-	if (figure.ablitiy) {
-		figure.effect   = self.$form.find('[name="figure_ability"]').val();
+	figure.name    = self.$form.find('[name="figure_name"]').val();
+	figure.mp      = self.$form.find('[name="figure_mp"]').val();
+	figure.ability = self.$form.find('[name="figure_ability"]').val();
+	figure.type    = [];
+
+	if (type1) { figure.type.push(type1); }
+	if (type2) { figure.type.push(type2); }
+
+	if (figure.ability) {
+		figure.effect = self.$form.find('[name="figure_effect"]').val();
 	}
 
 	figure.segments = [];
@@ -314,10 +379,13 @@ WG.Form.prototype.move = function(old_index, new_index) {
 };
 
 WG.Form.prototype.change = function() {
-	var self = this;
-	self.changeListeners.forEach(function(listener) {
-		listener(self.generateFigure());
+	var figure = this.generateFigure();
+	this.changeListeners.forEach(function(listener) {
+		listener(figure);
 	});
+
+	// Disable new segment button if wheel is full
+	this.$form.find('.new-segment').prop('disabled', this.total() >= WG.WHEEL_SIZE);
 };
 
 WG.Form.prototype.onChange = function(callback) {
@@ -325,16 +393,16 @@ WG.Form.prototype.onChange = function(callback) {
 };
 
 WG.Moveset.prototype.TEMPLATE = $(
-	'<tbody class="move">' +
+	'<tbody class="figure-move">' +
 		'<tr>' +
-			'<td class="move-size-container"><span class="move-size"></span></td>' +
-			'<td class="move-name"></td>' +
-			'<td class="move-damage"></td>' +
+			'<td class="figure-move-size-container text-center"><span class="figure-move-size"></span></td>' +
+			'<td class="figure-move-name text-left pl-2"></td>' +
+			'<td class="figure-move-damage text-center"></td>' +
 		'</tr>' +
 		'<tr>' +
-			'<td class="move-effect text-left pl-4 pr-4" colspan="3"></td>' +
+			'<td class="figure-move-effect text-left pl-4 pr-4" colspan="3"></td>' +
 		'</tr>' +
-		'<tr class="separator">' +
+		'<tr class="figure-move-separator">' +
 		'</tr>' +
 	'</tbody>'
 );
@@ -343,6 +411,7 @@ WG.Moveset.prototype.generateMove =  function(segment) {
 	var size = segment.size;
 	var name = segment.name;
 	var damage = '';
+	var spin = '';
 	var effect = '';
 
 	switch (segment.type) {
@@ -350,21 +419,20 @@ WG.Moveset.prototype.generateMove =  function(segment) {
 		case 'GOLD':
 			damage = segment.damage;
 
-			if (segment.modifier) {
-				effect = segment.effect;
+			if (segment.effectMod) {
+				name += '*';
+				effect = '*' + segment.effect;
+			}
 
-				if (segment.modifier === '*') {
-					name += '*';
-					effect = '*' + effect;
-				}
-				else if (segment.modifier === 'x') {
-					damage += 'x';
-				}
+			if (segment.spinMod) {
+				spin = segment.spin;
+				damage += segment.spinMod;
 			}
 			break;
 		case 'PURPLE':
+			name += '&nbsp';
 			for (var i = 0; i < segment.damage; i++) {
-				damage += '<i class="fa fa-star"></i>';
+				name += '&nbsp;<i class="fa fa-star"></i>';
 			}
 			effect = segment.effect;
 			break;
@@ -373,15 +441,15 @@ WG.Moveset.prototype.generateMove =  function(segment) {
 			break;
 	}
 
-	$move.find('.move-name').text(name);
-	$move.find('.move-damage').html(damage);
-	$move.find('.move-size').text(size);
+	$move.find('.figure-move-name').html(name);
+	$move.find('.figure-move-damage').html(damage);
+	$move.find('.figure-move-size').html(size);
 
-	if (effect) {
-		$move.find('.move-effect').text(effect);
+	if (spin || effect) {
+		$move.find('.figure-move-effect').text(spin + ' ' + effect);
 	}
 	else {
-		$move.find('.move-effect').parent().remove();
+		$move.find('.figure-move-effect').parent().remove();
 	}
 
 	return $move;
@@ -389,12 +457,43 @@ WG.Moveset.prototype.generateMove =  function(segment) {
 
 WG.Moveset.prototype.generate = function(figure) {
 	var self = this;
-	var $table = $('<div>');
+	var $rows = $('<div>');
 
 	// Add segments
 	figure.segments.forEach(function(segment) {
-		$table.append(self.generateMove(segment));
+		$rows.append(self.generateMove(segment));
 	});
 
-	return $table.html();
+	return $rows.html();
 };
+
+WG.Moveset.prototype.update = function(figure) {
+	this.$moveset.find('tbody').remove();
+	this.$moveset.append(this.generate(figure));
+};
+
+WG.Header.prototype.update = function(figure) {
+	this.$header.find('.figure-name').text(figure.name || '[Not Provided]');
+	this.$header.find('.figure-type').text(figure.type.join(', ') || '[Not Provided]');
+	this.$header.find('.figure-ability').text(figure.ability || 'None').show();
+
+	if (figure.ability) {
+		this.$header.find('.figure-effect').text(figure.effect).show();
+	}
+	else {
+		this.$header.find('.figure-effect').hide();
+	}
+};
+
+WG.Display.prototype.notify = function(text) {
+	if (text) {
+		this.$notification.addClass('d-flex').fadeIn();
+		this.$notification.children().text(text);
+	}
+	else {
+		this.$notification.fadeOut(400, function() {
+			$(this).removeClass('d-flex');
+		});
+		this.$notification.children().text('');
+	}
+}

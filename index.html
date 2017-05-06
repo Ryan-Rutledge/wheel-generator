@@ -10,170 +10,187 @@
 		<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/dragula/3.7.2/dragula.min.css" />
 		<link rel="stylesheet" href="styles.css" />
 	</head>
-	<body onload="WG.init($('.figure-form'), $('.moveset'))">
+	<body onload="WG.init($('.figure-form'), $('.figure-display'))">
 		<div class="header">
 			<h1 class="text-center mt-4 mb-4">Wheel Generator</h2>
 		</div>
-		<div class="container">
-			<div class="row">
-				<div class="col card">
-					<div class="row">
-						<div class="col">
-							<form class="figure-form p-4">
-								<h3>Figure</h3>
-								<div class="row">
-									<fieldset class="form-group col-sm-4 col-12">
-										<label>Figure Name</label>
-										<input type="text" class="form-control" name="figure_name" placeholder="Not Provided" value="">
-									</fieldset>
+		<div class="container card">
+			<form class="figure-form p-4">
+				<h3>Figure</h3>
+				<div class="row">
+					<fieldset class="form-group col-sm-4 col-12">
+						<label>Figure Name</label>
+						<input type="text" class="form-control" name="figure_name" placeholder="Not Provided" value="">
+					</fieldset>
 
-									<fieldset class="form-group col-sm-4 col-12">
-										<label>Figure Type 1</label>
-										<select type="select" class="form-control" name="figure_type_1">
-											<option value="" selected>Not Provided</option>
-											<option>Normal</option>
-											<option>Fire</option>
-											<option>Water</option>
-											<option>Grass</option>
-											<option>Electric</option>
-											<option>Ice</option>
-											<option>Fighting</option>
-											<option>Poison</option>
-											<option>Ground</option>
-											<option>Flying</option>
-											<option>Psychic</option>
-											<option>Bug</option>
-											<option>Rock</option>
-											<option>Ghost</option>
-											<option>Dragon</option>
-											<option>Dark</option>
-											<option>Steel</option>
-											<option>Fairy</option>
-										</select>
-									</fieldset>
+					<fieldset class="form-group col-sm-4 col-12">
+						<label>Figure Type 1</label>
+						<select type="select" class="form-control" name="figure_type_1">
+							<option value="" selected>None</option>
+							<option>Normal</option>
+							<option>Fire</option>
+							<option>Water</option>
+							<option>Grass</option>
+							<option>Electric</option>
+							<option>Ice</option>
+							<option>Fighting</option>
+							<option>Poison</option>
+							<option>Ground</option>
+							<option>Flying</option>
+							<option>Psychic</option>
+							<option>Bug</option>
+							<option>Rock</option>
+							<option>Ghost</option>
+							<option>Dragon</option>
+							<option>Dark</option>
+							<option>Steel</option>
+							<option>Fairy</option>
+						</select>
+					</fieldset>
 
-									<fieldset class="form-group col-sm-4 col-12">
-										<label>Figure Type 2</label>
-										<select type="select" class="form-control" name="figure_type_2">
-											<option value="" selected>Not Provided</option>
-											<option>Normal</option>
-											<option>Fire</option>
-											<option>Water</option>
-											<option>Grass</option>
-											<option>Electric</option>
-											<option>Ice</option>
-											<option>Fighting</option>
-											<option>Poison</option>
-											<option>Ground</option>
-											<option>Flying</option>
-											<option>Psychic</option>
-											<option>Bug</option>
-											<option>Rock</option>
-											<option>Ghost</option>
-											<option>Dragon</option>
-											<option>Dark</option>
-											<option>Steel</option>
-											<option>Fairy</option>
-										</select>
-									</fieldset>
-								</div>
+					<fieldset class="form-group col-sm-4 col-12">
+						<label>Figure Type 2</label>
+						<select type="select" class="form-control" name="figure_type_2">
+							<option value="" selected>None</option>
+							<option>Normal</option>
+							<option>Fire</option>
+							<option>Water</option>
+							<option>Grass</option>
+							<option>Electric</option>
+							<option>Ice</option>
+							<option>Fighting</option>
+							<option>Poison</option>
+							<option>Ground</option>
+							<option>Flying</option>
+							<option>Psychic</option>
+							<option>Bug</option>
+							<option>Rock</option>
+							<option>Ghost</option>
+							<option>Dragon</option>
+							<option>Dark</option>
+							<option>Steel</option>
+							<option>Fairy</option>
+						</select>
+					</fieldset>
+				</div>
 
-								<div class="row">
-									<fieldset class="form-group col-sm-6 col-12">
-										<label>Figure MP</label>
-										<select type="select" class="form-control" name="figure_mp">
-											<option selected>1</option>
-											<option>2</option>
-											<option>3</option>
-										</select>
-									</fieldset>
+				<div class="row">
+					<fieldset class="form-group col-sm-6 col-12">
+						<label>Figure MP</label>
+						<select type="select" class="form-control" name="figure_mp">
+							<option selected>1</option>
+							<option>2</option>
+							<option>3</option>
+						</select>
+					</fieldset>
 
-									<fieldset class="form-group col-sm-6 col-12">
-										<label>Figure Ability</label>
-										<input type="text" class="form-control" name="figure_ability_name" placeholder="None" autocomplete="off" value="">
-									</fieldset>
-								</div>
+					<fieldset class="form-group col-sm-6 col-12">
+						<label>Figure Ability</label>
+						<input type="text" class="form-control" name="figure_ability" placeholder="None" autocomplete="off" value="">
+					</fieldset>
+				</div>
 
-								<fieldset class="form-group">
-									<label>Figure Ability Description</label>
-									<textarea type="text" class="form-control" name="figure_ability"></textarea>
-								</fieldset>
+				<fieldset class="form-group">
+					<label>Figure Ability Description</label>
+					<textarea type="text" class="form-control" name="figure_effect"></textarea>
+				</fieldset>
 
-								<h3 class="mt-4 mb-2">Segments</h3>
-								<div class="segments">
-									<div class="segment p-2 mb-2 rounded">
-										<h5>Segment</h5>
-										<i class="fa fa-times delete-segment"></i>
-										<fieldset class="form-group">
-											<div class="input-group">
-												<div class="input-group-btn">
-													<button type="button" class="btn btn-secondary dropdown-toggle dropdown-select" name="segment_type" data-toggle="dropdown" value="Red"></button>
-													<div class="dropdown-menu">
-														<button type="button" value="RED" data-val="Red" href="#" class="dropdown-item dropdown-item-option segment-type">Red (Miss)</button>
-														<button type="button" value="WHITE" data-val="White" href="#" class="dropdown-item dropdown-item-option segment-type">White (Attack)</button>
-														<button type="button" value="GOLD" data-val="Gold" href="#" class="dropdown-item dropdown-item-option segment-type">Gold (Quick Attack)</button>
-														<button type="button" value="PURPLE" data-val="Purple" href="#" class="dropdown-item dropdown-item-option segment-type">Purple (Distance)</button>
-														<button type="button" value="BLUE" data-val="Blue" href="#" class="dropdown-item dropdown-item-option segment-type">Blue (Defend)</button>
-													</div>
-												</div>
-
-												<input type="number" class="input-group-addon" name="segment_size" min="4" max="96" step="4" value="12" placeholder="size" autocomplet="off"></input>
-
-												<input type="text" class="form-control" name="segment_name" placeholder="Miss" value="Miss" autocomplete="off">
-
-												<input type="number" class="input-group-addon" name="segment_damage" placeholder="dmg" min="0" step="10" autocomplete="off">
-
-												<div class="input-group-btn">
-													<button type="button" class="btn btn-secondary dropdown-toggle dropdown-select" name="segment_modifier" data-toggle="dropdown" value=""></button>
-													<div class="dropdown-menu dropdown-menu-right">
-														<button type="button" value=""  data-val="" href="#" class="dropdown-item dropdown-item-option segment-modifier">No Effect</button>
-														<button type="button" value="*" data-val="<i class='fa fa-asterisk'></i>" href="#" class="dropdown-item dropdown-item-option segment-modifier"><i class="fa fa-asterisk"></i></button>
-														<button type="button" value="x" data-val="<i class='fa fa-times'></i>" href="#" class="dropdown-item dropdown-item-option segment-modifier"><i class="fa fa-times"></i></button>
-														<button type="button" value="+" data-val="<i class='fa fa-plus'></i>" href="#" class="dropdown-item dropdown-item-option segment-modifier"><i class="fa fa-plus"></i></button>
-													</div>
-												</div>
-												<div class="input-group-btn">
-													<button type="button" class="btn btn-secondary dropdown-toggle dropdown-select" name="segment_stars" data-toggle="dropdown" value="1"></button>
-													<div class="dropdown-menu dropdown-menu-right">
-														<button type="button" value="1" data-val="<i class='fa fa-star'></i>" href="#" class="dropdown-item dropdown-item-option segment-stars"><i class="fa fa-star"></i></button>
-														<button type="button" value="2" data-val="<i class='fa fa-star'></i><i class='fa fa-star'></i>" href="#" class="dropdown-item dropdown-item-option segment-stars"><i class="fa fa-star"></i><i class="fa fa-star"></i></button>
-														<button type="button" value="3" data-val="<i class='fa fa-star'></i><i class='fa fa-star'></i><i class='fa fa-star'></i>" href="#" class="dropdown-item dropdown-item-option segment-stars"><i class="fa fa-star"></i><i class="fa fa-star"></i><i class="fa fa-star"></i></button>
-													</div>
-												</div>
-											</div>
-										</fieldset>
-
-										<fieldset class="form-group">
-											<label>Segment Effect</label>
-											<textarea type="text" class="form-control" name="segment_effect" placeholder="None" value=""></textarea>
-										</fieldset>
+				<h3 class="mt-4 mb-2">Segments</h3>
+				<div class="segments">
+					<div class="segment p-2 mb-2 rounded">
+						<h5>Segment</h5>
+						<i class="fa fa-times delete-segment"></i>
+						<fieldset class="form-group">
+							<div class="input-group">
+								<div class="input-group-btn">
+									<button type="button" class="btn btn-sm btn-secondary dropdown-toggle dropdown-select" name="segment_type" data-toggle="dropdown" value="Red"></button>
+									<div class="dropdown-menu">
+										<button type="button" value="RED" data-val="Red" href="#" class="btn-sm dropdown-item dropdown-item-option segment-type">Red (Miss)</button>
+										<button type="button" value="WHITE" data-val="White" href="#" class="btn-sm dropdown-item dropdown-item-option segment-type">White (Attack)</button>
+										<button type="button" value="GOLD" data-val="Gold" href="#" class="btn-sm dropdown-item dropdown-item-option segment-type">Gold (Quick Attack)</button>
+										<button type="button" value="PURPLE" data-val="Purple" href="#" class="btn-sm dropdown-item dropdown-item-option segment-type">Purple (Distance)</button>
+										<button type="button" value="BLUE" data-val="Blue" href="#" class="btn-sm dropdown-item dropdown-item-option segment-type">Blue (Defend)</button>
 									</div>
 								</div>
 
-								<fieldset class="form-group">
-									<button type="button" class="btn btn-outline-primary btn-block new-segment mt-4" autocomplete="off">Add Segment</button>
-								</fieldset>
+								<input type="number" class="input-group-addon" name="segment_size" min="4" max="96" step="4" value="12" placeholder="size" autocomplet="off"></input>
 
-								<div class="row">
-									<div class="col">
-										<fieldset class="form-group text-center card card-inverse p-4 mt-4">
-											Wheel goes here
-										</fieldset>
-									</div>
+								<input type="text" class="form-control form-control-sm" name="segment_name" placeholder="Miss" value="Miss" autocomplete="off">
 
-									<div class="col">
-										<fieldset class="form-group text-center card card-inverse p-4 mt-4">
-											<table class="moveset table table-bordered table-sm">
-												<thead>
-													<th class="text-center move-size">Size</th>
-													<th class="text-center move-name">Attack</th>
-													<th class="text-center move-damage">Damage</th>
-												</thead>
-											</table>
-										</fieldset>
+								<div class="input-group-btn">
+									<button type="button" class="btn btn-sm btn-secondary dropdown-toggle dropdown-select" name="segment_effect_modifier" data-toggle="dropdown" value=""></button>
+									<div class="dropdown-menu dropdown-menu-right">
+										<button type="button" value=""  data-val="" href="#" class="btn btn-sm dropdown-item dropdown-item-option segment-effect-modifier">None</button>
+										<button type="button" value="*" data-val="<i class='fa fa-asterisk'></i>" href="#" class="btn btn-sm dropdown-item dropdown-item-option segment-effect-modifier"><i class="fa fa-asterisk"></i></button>
 									</div>
 								</div>
-							</form>
+
+								<input type="number" class="input-group-addon" name="segment_damage" placeholder="dmg" min="0" step="10" autocomplete="off">
+
+								<div class="input-group-btn">
+									<button type="button" class="btn btn-sm btn-secondary dropdown-toggle dropdown-select" name="segment_spin_modifier" data-toggle="dropdown" value=""></button>
+									<div class="dropdown-menu dropdown-menu-right">
+										<button type="button" value=""  data-val="" href="#" class="btn-sm dropdown-item dropdown-item-option segment-spin-modifier">None</button>
+										<button type="button" value="x" data-val="<i class='fa fa-times'></i>" href="#" class="btn-sm dropdown-item dropdown-item-option segment-spin-modifier"><i class="fa fa-times"></i></button>
+										<button type="button" value="+" data-val="<i class='fa fa-plus'></i>" href="#" class="btn-sm dropdown-item dropdown-item-option segment-spin-modifier"><i class="fa fa-plus"></i></button>
+									</div>
+								</div>
+								<div class="input-group-btn">
+									<button type="button" class="btn btn-sm btn-secondary dropdown-toggle dropdown-select" name="segment_stars" data-toggle="dropdown" value="1"></button>
+									<div class="dropdown-menu dropdown-menu-right">
+										<button type="button" value="1" data-val="<i class='fa fa-star'></i>" href="#" class="btn-sm text-right dropdown-item dropdown-item-option segment-stars"><i class="fa fa-star"></i></button>
+										<button type="button" value="2" data-val="<i class='fa fa-star'></i><i class='fa fa-star'></i>" href="#" class="btn-sm text-right dropdown-item dropdown-item-option segment-stars"><i class="fa fa-star"></i><i class="fa fa-star"></i></button>
+										<button type="button" value="3" data-val="<i class='fa fa-star'></i><i class='fa fa-star'></i><i class='fa fa-star'></i>" href="#" class="btn-sm text-right dropdown-item dropdown-item-option segment-stars"><i class="fa fa-star"></i><i class="fa fa-star"></i><i class="fa fa-star"></i></button>
+									</div>
+								</div>
+							</div>
+						</fieldset>
+
+						<fieldset class="form-group">
+							<label>Spin Effect</label>
+							<textarea type="text" class="form-control" name="segment_spin_effect" placeholder="Spin again..." value=""></textarea>
+						</fieldset>
+
+						<fieldset class="form-group">
+							<label>Special Effect</label>
+							<textarea type="text" class="form-control" name="segment_effect" placeholder="None" value=""></textarea>
+						</fieldset>
+					</div>
+				</div>
+
+				<fieldset class="form-group">
+					<button type="button" class="btn btn-outline-primary btn-block new-segment mt-4 mb-4" autocomplete="off">New Segment</button>
+				</fieldset>
+			</form>
+
+			<div class="row card card-inverse mt-4 figure-display">
+				<div class="figure-display-notification text-center d-flex justify-content-center align-items-center p-4"><h4 class="figure-display-notification-text">This is a test</h4></div>
+				<div class="row card-block">
+					<div class="col-12 col-md-6 push-md-6">
+						<div class="pl-4 pr-4 pt-4 pb-3 figure-header">
+							<div class="row">
+								<h3 class="col-12 pl-0 mb-3"><span class="figure-name"></span></h3>
+								<label class="col-3 text-center bg-inverse rounded">Type</label> <span class="figure-type col-9"></span>
+								<label class="col-3 text-center bg-inverse rounded">Abilities</label> <span class="figure-ability col-9"></span>
+								<p class="figure-effect "></p>
+							</div>
+						</div>
+					</div>
+
+					<div class="col-12 col-md-6 pull-md-6">
+						<div class="p-4 figure-wheel-container">
+						</div>
+					</div>
+
+					<div class="col-12 col-lg-10 offset-lg-1">
+						<div class="pl-4 pr-4 pt-4 pb-2 ">
+							<table class="figure-moveset table table-bordered table-sm">
+								<thead>
+									<th class="text-center figure-move-size">Size</th>
+									<th class="text-center figure-move-name">Attack</th>
+									<th class="text-center figure-move-damage">Damage</th>
+								</thead>
+							</table>
 						</div>
 					</div>
 				</div>
@@ -184,6 +201,7 @@
 		<script src="https://code.jquery.com/jquery-3.2.1.min.js" integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4=" crossorigin="anonymous"></script> <script src="https://cdnjs.cloudflare.com/ajax/libs/tether/1.4.0/js/tether.min.js" integrity="sha384-DztdAPBWPRXSA/3eYEEUWrWCy7G5KFbe8fFjk5JAIxUYHKkDx6Qin1DkWx51bBrb" crossorigin="anonymous"></script>
 		<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-alpha.6/js/bootstrap.min.js" integrity="sha384-vBWWzlZJ8ea9aCX4pEW3rVHjgjt7zpkNpZk+02D9phzyeVkE+jo0ieGizqPLForn" crossorigin="anonymous"></script>
 		<script src="https://cdnjs.cloudflare.com/ajax/libs/dragula/3.7.2/dragula.min.js"></script>
+		<script src="https://cdnjs.cloudflare.com/ajax/libs/raphael/2.2.7/raphael.min.js"></script>
 		<script src="scripts.js"></script>
 	</body>
 </html>

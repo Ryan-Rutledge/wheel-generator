@@ -10,15 +10,15 @@
 
 [name="segment_size"] {
 	background-color: #fff;
-	max-width: 6em;
+	max-width: 4em;
 }
 
 [name="segment_damage"] {
 	background-color: #fff;
-	max-width: 6em;
+	max-width: 5em;
 }
 
-.segments, .move {
+.segments, .figure-move {
 	cursor: move;
 	cursor: grab;
     cursor: -moz-grab;
@@ -62,7 +62,7 @@
 	font-size: 24px;
 }
 
-.moveset {
+.figure-moveset {
 	border-collapse: separate;
 	border-spacing: 0;
 	background-color: #111;
@@ -70,74 +70,94 @@
 	color: #000;
 }
 
-.moveset th {
+.figure-moveset th {
 	border-width: 0 1px !important;
 }
-.moveset th:first-child {
+.figure-moveset th:first-child {
 	border-left-width: 4px;
 }
-.moveset th:last-child {
+.figure-moveset th:last-child {
 	border-right-width: 4px;
 }
 
-.moveset thead {
+.figure-moveset thead {
 	background-color: #015;
 	color: #77b;
 }
 
-.move .separator {
+.figure-move-separator {
 	height: 2px;
 }
 
-.move tr:nth-child(2) td {
+.figure-move tr:nth-child(2) td {
 	background-color: #eee;
 }
 
-.move.red-move tr:first-child td {
+.figure-move.red-move tr:first-child td {
 	background-color: #E04C4C;
 }
-.move.red-move td {
+.figure-move.red-move td {
 	border-color: #D42525;
 }
-.move.white-move tr:first-child td {
+.figure-move.white-move tr:first-child td {
 	background-color: #EEE;
 }
-.move.white-move td {
+.figure-move.white-move td {
 	border-color: #D4D4D4;
 }
-.move.gold-move tr:first-child td {
+.figure-move.gold-move tr:first-child td {
 	background-color: #EDB34B;
 }
-.move.gold-move td {
+.figure-move.gold-move td {
 	border-color: #E89F1D;
 }
-.move.purple-move tr:first-child td {
+.figure-move.purple-move tr:first-child td {
 	background-color: #CA6FE6;
 }
-.move.purple-move td {
+.figure-move.purple-move td {
 	border-color: #BA44DE;
 }
-.move.blue-move tr:first-child td {
+.figure-move.blue-move tr:first-child td {
 	background-color: #52BCE8;
 }
-.move.blue-move td {
+.figure-move.blue-move td {
 	border-color: #25ABE2;
 }
 
-.moveset td, .moveset th, .moveset thead {
+.figure-moveset td, .figure-moveset th, .figure-moveset thead {
 	border-color: #111;
 }
 
-.move .move-size { width: 3em; }
-.move .move-damage { width: 4em; }
+.figure-moveset .figure-move-size { width: 3em; }
+.figure-moveset .figure-move-damage { width: 4em; }
+.figure-moveset td.figure-move-name { border-right: none; }
+.figure-moveset td.figure-move-damage { border-left: none; }
+.figure-moveset .figure-move:hover:not(.gu-mirror) { opacity: 0.9; }
 
-.move.gu-mirror {
+.figure-move.gu-mirror {
 	width: 100%;
 	display: table;
-	border-color: #111;
+	border: none;
 }
 
 .card-inverse {
 	background-color: #111;
 	border-color: #222;
+}
+
+.figure-display-notification {
+	width: 100%;
+	height: 100%;
+	position: absolute;
+	left: 0;
+	right: 0;
+	top: 0;
+	bottom: 0;
+	background-color: rgba(255, 255, 255, 0.75);
+	color: #000;
+	z-index: 2;
+}
+
+.figure-wheel-container {
+	min-height: 100%;
 }
