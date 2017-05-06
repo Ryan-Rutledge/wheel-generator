@@ -96,6 +96,10 @@
 				</fieldset>
 
 				<h3 class="mt-4 mb-2">Segments</h3>
+				<fieldset class="form-group">
+					<button type="button" class="btn btn-outline-primary btn-block new-segment mt-4 mb-4" autocomplete="off">New Segment</button>
+				</fieldset>
+
 				<div class="segments">
 					<div class="segment p-2 mb-2 rounded">
 						<h5>Segment</h5>
@@ -103,7 +107,7 @@
 						<fieldset class="form-group">
 							<div class="input-group">
 								<div class="input-group-btn">
-									<button type="button" class="btn btn-sm btn-secondary dropdown-toggle dropdown-select" name="segment_type" data-toggle="dropdown" value="Red"></button>
+									<button type="button" class="btn btn-sm btn-secondary dropdown-toggle dropdown-select" name="segment_type" data-toggle="dropdown" value="Red" autocomplete="off"></button>
 									<div class="dropdown-menu">
 										<button type="button" value="RED" data-val="Red" href="#" class="btn-sm dropdown-item dropdown-item-option segment-type">Red (Miss)</button>
 										<button type="button" value="WHITE" data-val="White" href="#" class="btn-sm dropdown-item dropdown-item-option segment-type">White (Attack)</button>
@@ -113,14 +117,14 @@
 									</div>
 								</div>
 
-								<input type="number" class="input-group-addon" name="segment_size" min="4" max="96" step="4" value="12" placeholder="size" autocomplet="off"></input>
+								<input type="number" class="input-group-addon" name="segment_size" min="4" max="96" step="4" value="96" placeholder="size" autocomplet="off"></input>
 
 								<input type="text" class="form-control form-control-sm" name="segment_name" placeholder="Miss" value="Miss" autocomplete="off">
 
 								<div class="input-group-btn">
-									<button type="button" class="btn btn-sm btn-secondary dropdown-toggle dropdown-select" name="segment_effect_modifier" data-toggle="dropdown" value=""></button>
+									<button type="button" class="btn btn-sm btn-secondary dropdown-toggle dropdown-select" name="segment_effect_modifier" data-toggle="dropdown" value="" autocomplete="off"></button>
 									<div class="dropdown-menu dropdown-menu-right">
-										<button type="button" value=""  data-val="" href="#" class="btn btn-sm dropdown-item dropdown-item-option segment-effect-modifier">None</button>
+										<button type="button" value=""  data-val="" href="#" class="btn btn-sm dropdown-item dropdown-item-option segment-effect-modifier" autocomplete="off">None</button>
 										<button type="button" value="*" data-val="<i class='fa fa-asterisk'></i>" href="#" class="btn btn-sm dropdown-item dropdown-item-option segment-effect-modifier"><i class="fa fa-asterisk"></i></button>
 									</div>
 								</div>
@@ -128,7 +132,7 @@
 								<input type="number" class="input-group-addon" name="segment_damage" placeholder="dmg" min="0" step="10" autocomplete="off">
 
 								<div class="input-group-btn">
-									<button type="button" class="btn btn-sm btn-secondary dropdown-toggle dropdown-select" name="segment_spin_modifier" data-toggle="dropdown" value=""></button>
+									<button type="button" class="btn btn-sm btn-secondary dropdown-toggle dropdown-select" name="segment_spin_modifier" data-toggle="dropdown" value="" autocomplete="off"></button>
 									<div class="dropdown-menu dropdown-menu-right">
 										<button type="button" value=""  data-val="" href="#" class="btn-sm dropdown-item dropdown-item-option segment-spin-modifier">None</button>
 										<button type="button" value="x" data-val="<i class='fa fa-times'></i>" href="#" class="btn-sm dropdown-item dropdown-item-option segment-spin-modifier"><i class="fa fa-times"></i></button>
@@ -136,7 +140,7 @@
 									</div>
 								</div>
 								<div class="input-group-btn">
-									<button type="button" class="btn btn-sm btn-secondary dropdown-toggle dropdown-select" name="segment_stars" data-toggle="dropdown" value="1"></button>
+									<button type="button" class="btn btn-sm btn-secondary dropdown-toggle dropdown-select" name="segment_stars" data-toggle="dropdown" value="1" autocomplete="off"></button>
 									<div class="dropdown-menu dropdown-menu-right">
 										<button type="button" value="1" data-val="<i class='fa fa-star'></i>" href="#" class="btn-sm text-right dropdown-item dropdown-item-option segment-stars"><i class="fa fa-star"></i></button>
 										<button type="button" value="2" data-val="<i class='fa fa-star'></i><i class='fa fa-star'></i>" href="#" class="btn-sm text-right dropdown-item dropdown-item-option segment-stars"><i class="fa fa-star"></i><i class="fa fa-star"></i></button>
@@ -157,14 +161,10 @@
 						</fieldset>
 					</div>
 				</div>
-
-				<fieldset class="form-group">
-					<button type="button" class="btn btn-outline-primary btn-block new-segment mt-4 mb-4" autocomplete="off">New Segment</button>
-				</fieldset>
 			</form>
 
 			<div class="row card card-inverse mt-4 figure-display">
-				<div class="figure-display-notification text-center d-flex justify-content-center align-items-center p-4"><h4 class="figure-display-notification-text">This is a test</h4></div>
+				<div class="figure-display-notification text-center d-flex justify-content-center align-items-center p-4"><h4 class="figure-display-notification-text"></h4></div>
 				<div class="row card-block">
 					<div class="col-12 col-md-6 push-md-6">
 						<div class="pl-4 pr-4 pt-4 pb-3 figure-header">
@@ -178,7 +178,9 @@
 					</div>
 
 					<div class="col-12 col-md-6 pull-md-6">
-						<div class="p-4 figure-wheel-container">
+						<div class="p-4 d-flex justify-content-center align-items-center figure-wheel-container ">
+							<div class="figure-wheel">
+							</div>
 						</div>
 					</div>
 

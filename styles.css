@@ -161,3 +161,8 @@
 .figure-wheel-container {
 	min-height: 100%;
 }
+
+.figure-wheel,
+.figure-wheel svg {
+	max-width: 100%;
+}

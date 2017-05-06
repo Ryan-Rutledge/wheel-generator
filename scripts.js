@@ -2,25 +2,25 @@ var WG = {
 	WHEEL_SIZE: 96,
 	MIN_SIZE: 4,
 	COLORS: {
+		BLACK: '#000',
+		GRAY: '#333',
 		RED: '#E04C4C',
 		WHITE: '#EEE',
 		GOLD: '#EDB34B',
 		PURPLE: '#CA6FE6',
-		BLUE: '#52BCE8'
-	},
-	DARK_COLORS: {
-		RED: '#D42525',
-		WHITE: '#D4D4D4',
-		GOLD: '#E89F1D',
-		PURPLE: '#BA44DE',
-		BLUE: '#25ABE2'
+		BLUE: '#52BCE8',
+		DARK_RED: '#DC3636',
+		DARK_WHITE: '#E1E1E1',
+		DARK_GOLD: '#EBA934',
+		DARK_PURPLE: '#C259E2',
+		DARK_BLUE: '#3BB3E5'
 	},
 	init: function($form, $display) {
 		form = new WG.Form($form);
-		//wheel = new WG.Wheel($display.find('.figure-wheel'));
+		wheel = new WG.Wheel($display.find('.figure-wheel'));
 		header = new WG.Header($display.find('.figure-header'));
 		moveset = new WG.Moveset($display.find('.figure-moveset'));
-		display = new WG.Display(form, null, header, moveset, $display.find('.figure-display-notification'));
+		display = new WG.Display(form, wheel, header, moveset, $display.find('.figure-display-notification'));
 	},
 	Display: function(form, wheel, header, moveset, $notification) {
 		var self = this;
@@ -30,7 +30,7 @@ var WG = {
 			index = $(el).index() - 1;
 		});
 		
-		moveset.drake.on('drop', function(el) {
+		moveset.drake.on('dragend', function(el) {
 			var new_index = $(el).index() - 1;
 			form.move(index, new_index);
 			index = undefined;
@@ -44,11 +44,11 @@ var WG = {
 				self.notify();
 				moveset.update.call(moveset, figure);
 				header.update.call(header, figure);
-				//wheel.update(figure);
+				wheel.update(figure);
 			}
 		});
 
-		form.change();
+		form.change('init');
 	},
 	Header: function($header) {
 		var self = this;
@@ -83,7 +83,6 @@ var WG = {
 			var $menu = $this.parent().prev();
 			$menu.html($this.data('val') === undefined ? $this.text() : $this.data('val'));
 			$menu.val($this.val());
-			self.change.call(self);
 		});
 
 		// Handle segment type change
@@ -214,7 +213,7 @@ var WG = {
 					{ opacity: 0, height: 0, padding: 0, margin: 0},
 					{ duration: 400, queue: false, complete: function() {
 						$(this).remove();
-						self.change.call(self);
+						self.change.call(self, 'delete');
 					} });
 			})
 
@@ -232,29 +231,27 @@ var WG = {
 		});
 
 		drake.on('dragend', function(el) {
-			self.change.call(self);
+			self.change.call(self, 'move');
 		});
 
 		// Handle segment size limits
 		$form.find('[name="segment_size"]').focus(function() {
-			var max = WG.WHEEL_SIZE + parseInt($(this).val()) - self.total($form) ;
-			$(this).attr('max', max);
-		})
-		.change(function() {
-			// If total size is exceeded
-			var total = self.total($form)
-			if (total > WG.WHEEL_SIZE) {
-				$(this).val(WG.WHEEL_SIZE + parseInt($(this).val()) - self.total($form));
-			}
+			$(this).attr('max', self.max($(this).closest('.segment')));
+		}).change(function() {
+			var $this = $(this);
+			var $segment = $this.closest('.segment');
 
-			// Make sure size is below max
-			if ($(this).val() < WG.MIN_SIZE) {
-				$(this).val(WG.MIN_SIZE);
-			}
+			$this.val(Math.max(Math.min(self.max($segment), $this.val()), WG.MIN_SIZE));
+
+			self.fillMiss($segment.has('[name="segment_type"][value="RED"]') ? $segment : undefined);
 		});
 
+		// Add change event handlers
 		$form.find('textarea, input, [name]').change(function() {
-			self.change.call(self);
+			self.change.call(self, 'data');
+		});
+		$form.find('button').click(function() {
+			self.change.call(self, 'data');
 		});
 
 		// Create a blank segment template
@@ -262,44 +259,64 @@ var WG = {
 
 		// Handle new segment events
 		$form.find('.new-segment').click(function() {
-			var max = WG.WHEEL_SIZE - self.total($form);
+			var $miss = self.$segments.children().has('[name="segment_type"][value="RED"]').first();
+
+			// Decrease miss size
+			var $size = $miss.find('[name="segment_size"]');
+			$size.val($size.val() - WG.MIN_SIZE);
 
 			var $newSegment = $segmentClone.clone(true).hide();
 
 			// If next to a miss
-			if (self.$segments.children(':first, :last').find('[name="segment_type"][value="RED"]').get(0)) {
+			if ($miss.get(0)) {
 				// Add white segment
 				$newSegment.find('.segment-type[value="WHITE"]').click();
 			}
 
 			// Add segment
-			$form.find('.segments').append($newSegment);
+			$form.find('.segments').prepend($newSegment);
 
 			// Set segment width
-			$newSegment.find('[name="segment_size"]')
-				.attr('max', max)
-				.val(Math.min(12, max));
+			$newSegment.find('[name="segment_size"]').val(WG.MIN_SIZE);
 
 			// animate insertion
 			$newSegment.slideDown();
-			self.change.call(self);
+			self.fillMiss();
+			self.change.call(self, 'add');
 		});
+
+		// Setup default miss
+		$form.find('.segment .delete-segment').remove();
+		$form.find('.segment [name="segment_type"]').prop('disabled', true);
+		$form.find('.segment [name="segment_name"]').prop('disabled', true);
+		$form.find('.segment [name="segment_size"]').val(WG.WHEEL_SIZE);
 	},
-	wheel: {
-		generate: function(figure) {
-			// Create wheel
-		}
+	Wheel: function($wheel) {
+		var self = this;
+		self.$wheel = $wheel;
+
+		self.paper = new Raphael($wheel.get(0), 400, 400);
+		self.paper.setViewBox(-6, -6, 412, 412);
+		self.paper.canvas.setAttribute('preserveAspectRatio', 'xMidYMid');
 	}
 };
 
 WG.Form.prototype.total = function() {
-	var self = this;
-	var total = 0;
-	self.$form.find('[name="segment_size"]').each(function() {
-		total += parseInt($(this).val());
-	});
+	return this.$form.find('[name="segment_size"]').toArray().reduce(function(a, b) {
+		return a + parseInt($(b).val());
+	}, 0);
+};
 
-	return total;
+WG.Form.prototype.max = function($segment) {
+	var $segments = this.$segments.children().not($segment);
+	var min_miss = WG.MIN_SIZE * ($segments.has('[name="segment_type"][value="RED"]').length - 1);
+	var non_miss = $segments.not(':has([name="segment_type"][value="RED"])')
+		.find('[name="segment_size"]').toArray().reduce(function(a, b) {
+			return a + parseInt($(b).val());
+		}
+	, 0);
+
+	return WG.WHEEL_SIZE - WG.MIN_SIZE - (min_miss + non_miss);
 };
 
 WG.Form.prototype.generateSegment = function($segment) {
@@ -340,7 +357,18 @@ WG.Form.prototype.generateFigure = function() {
 	var self = this;
 	var figure = {};
 	var total = self.total();
-	if (total !== WG.WHEEL_SIZE) { return { error: 'Wheel size must be 96, but is currently ' + total + '.' }; }
+
+	if (total !== WG.WHEEL_SIZE) {
+		return { error: 'Wheel must be exactly ' + WG.WHEEL_SIZE + ', but is currently ' + total + '.' };
+	}
+
+	// Check segment divisiblity
+	var $sizes = self.$segments.find('[name="segment_size"]');
+	for (var i = 0; i < $sizes.length; i++) {
+		if ($sizes.eq(i).val() % WG.MIN_SIZE !== 0) {
+			return { error: 'Wheel sizes must be divisible by ' + WG.MIN_SIZE + '.' };
+		}
+	}
 
 	var type1 = self.$form.find('[name="figure_type_1"]').val();
 	var type2 = self.$form.find('[name="figure_type_2"]').val();
@@ -358,7 +386,7 @@ WG.Form.prototype.generateFigure = function() {
 	}
 
 	figure.segments = [];
-	self.$form.find('.segment').each(function(_, segment) {
+	self.$segments.find('.segment').each(function(_, segment) {
 		figure.segments.push(self.generateSegment($(segment)));
 	});
 
@@ -376,16 +404,42 @@ WG.Form.prototype.move = function(old_index, new_index) {
 	else {
 		self.$segments.append($segment);
 	}
+
+	self.change('move');
 };
 
-WG.Form.prototype.change = function() {
+WG.Form.prototype.fillMiss = function($exclude) {
+	var $missSize = this.$segments.children().has('[name="segment_type"][value="RED"]').find('[name="segment_size"]');
+
+	if ($missSize.length > 1) {
+		var $tmp = $missSize.filter(function() {
+			return $(this).val() > WG.MIN_SIZE;
+		});
+
+		$missSize = $tmp.get(0) ? $tmp : $missSize;
+	}
+
+	if ($exclude) {
+		$missSize = $missSize.not($exclude.find('[name="segment_size"]'));
+	}
+
+	$missSize.last().val(WG.WHEEL_SIZE - (this.total() - $missSize.val()));
+};
+
+WG.Form.prototype.change = function(action) {
 	var figure = this.generateFigure();
+
+	var hasRoom = !!this.$segments.children().has('[name="segment_type"][value="RED"]').filter(function() {
+		return $(this).find('[name="segment_size"]').val() > WG.MIN_SIZE;
+	}).get(0);
+	
+	// Disable button if there is no room left
+	this.$form.find('.new-segment').prop('disabled', !hasRoom);
+
+	// Apply change handlers
 	this.changeListeners.forEach(function(listener) {
 		listener(figure);
 	});
-
-	// Disable new segment button if wheel is full
-	this.$form.find('.new-segment').prop('disabled', this.total() >= WG.WHEEL_SIZE);
 };
 
 WG.Form.prototype.onChange = function(callback) {
@@ -406,6 +460,7 @@ WG.Moveset.prototype.TEMPLATE = $(
 		'</tr>' +
 	'</tbody>'
 );
+
 WG.Moveset.prototype.generateMove =  function(segment) {
 	var $move = WG.Moveset.prototype.TEMPLATE.clone().addClass(segment.type.toLowerCase() + '-move');
 	var size = segment.size;
@@ -497,3 +552,85 @@ WG.Display.prototype.notify = function(text) {
 		this.$notification.children().text('');
 	}
 }
+
+WG.Wheel.prototype.generateSegment = function(br, er) {
+	var bx = 200 + 200 * Math.cos(br);
+	var by = 200 + 200 * Math.sin(br);
+	var ex = 200 + 200 * Math.cos(er);
+	var ey = 200 + 200 * Math.sin(er);
+
+	return this.paper.path(['M', bx, by, 'A 200 200 0', +(er - br >= Math.PI), '1', ex, ey, 'L 200 200 Z'].join(' '));
+};
+
+WG.Wheel.prototype.insertSegment = function(segment, br) {
+	var er = br + 2 * Math.PI * (Math.min(segment.size, WG.WHEEL_SIZE - 0.00001) / WG.WHEEL_SIZE);
+	var path = this.generateSegment(br, er);
+	path.attr({ 'fill': WG.COLORS[segment.type] });
+
+	// add stripes
+	var options = {
+		'stroke': 'none',
+		'fill': WG.COLORS['DARK_' + segment.type],
+	};
+	var srb = br;
+	var sr = 2 * Math.PI * (2 / WG.WHEEL_SIZE);
+	for (var i = segment.size / 4; i > 0; i--) {
+		this.generateSegment(srb, srb + sr).attr(options);
+		srb += 2 * sr;
+	}
+
+	// Apply stroke
+	path = this.paper.path().attr(path.attr());
+	path.attr({
+		'stroke': WG.COLORS.GRAY,
+		'fill': 'none',
+		'stroke-width': 3
+	});
+
+	// Add damage
+
+	// Add move
+
+	this.segments.push(path);
+
+	return er;
+};
+
+WG.Wheel.prototype.update = function(figure) {
+	var self = this;
+	self.paper.clear();
+	self.segments = self.paper.set();
+
+	// Insert segments
+	var r = Math.PI * 0.5;
+	figure.segments.forEach(function(segment) {
+		r = self.insertSegment.call(self, segment, r);
+	});
+
+	// Add border
+	self.wheel = self.paper.circle(200, 200, 200);
+	self.wheel.attr({
+		'stroke': '#000',
+		'stroke-width': 8
+	});
+
+	var center = self.paper.circle(200, 200, 50);
+	center.attr({
+		'stroke': WG.COLORS.GRAY,
+		'stroke-width': 4,
+		'fill': WG.COLORS.BLACK
+	});
+
+	var rim = self.paper.set();
+	var tRim = self.paper.circle(203, 197, 200);
+	var bRim = self.paper.circle(197, 203, 200);
+
+	tRim.attr({ 'stroke': '#aaa' });
+	bRim.attr({ 'stroke': '#555' });
+
+	rim.push(tRim);
+	rim.push(bRim);
+	rim.attr({ 'stroke-width': 4, });
+
+	rim.toBack();
+};
