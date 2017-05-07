@@ -117,22 +117,13 @@ var WG = {
 					$stars.hide();
 					$spinMod.show();
 					$effectMod.show();
+					$effect.show();
 
-					if ($effect.is(':hidden')) {
-						$spinMod.next().children(':first').click();
-						$effectMod.next().children(':first').click();
-					}
-					else {
-						$spinMod.next().children().eq(1).click();
-						$effectMod.next().children().eq(1).click();
-					}
+					$spinMod.next().children(':first').click();
+					$effectMod.next().children(':first').click();
 					$damage.show();
 
-					$name.attr('placeholder', 'Quick Attack');
-					if (!$name.val() || $name.val() === 'Miss') {
-						$name.val(color === 'GOLD' ? 'Quick Attack' : 'Scratch');
-						$damage.val(20);
-					}
+					$name.attr('placeholder', 'Quick Attack').val($name.val() === 'Miss' ? '' : $name.val());
 					break;
 				case 'PURPLE':
 					$spinMod.hide();
@@ -142,8 +133,7 @@ var WG = {
 					$effect.slideDown();
 					$damage.hide();
 
-					$name.attr('placeholder', 'Confusion');
-					if (!$name.val() || $name.val() === 'Miss') { $name.val('Confusion'); }
+					$name.attr('placeholder', 'Fly Away').val($name.val() === 'Miss' ? '' : $name.val());
 					break;
 				case 'BLUE':
 					$stars.hide();
@@ -152,8 +142,7 @@ var WG = {
 					$effect.slideDown();
 					$damage.hide();
 
-					if (!$name.val() || $name.val() === 'Miss') { $name.val('Dodge'); }
-					$name.attr('placeholder', 'Dodge');
+					$name.attr('placeholder', 'Dodge').val($name.val() === 'Miss' ? '' : $name.val());
 					break;
 			}
 		});
@@ -163,20 +152,6 @@ var WG = {
 			var $this = $(this);
 			var $segment = $this.closest('.segment');
 			var $effect = $segment.find('[name="segment_spin_effect"]').parent();
-
-			if ($this.val()) {
-				$effect.slideDown();
-			}
-			else {
-				$effect.slideUp();
-			}
-		});
-
-		// Handle segment effect modifier change
-		$form.find('.segment-effect-modifier').click(function() {
-			var $this = $(this);
-			var $segment = $this.closest('.segment');
-			var $effect = $segment.find('[name="segment_effect"]').parent();
 
 			if ($this.val()) {
 				$effect.slideDown();
@@ -329,16 +304,16 @@ WG.Form.prototype.generateSegment = function($segment) {
 	switch (segment.type) {
 		case 'WHITE':
 		case 'GOLD':
-			segment.damage = $segment.find('[name="segment_damage"]').val();
 			segment.spinMod = $segment.find('[name="segment_spin_modifier"]').val();
 			segment.effectMod = $segment.find('[name="segment_effect_modifier"]').val();
+			segment.effect = $segment.find('[name="segment_effect"]').val();
+
+			if (!segment.effect || segment.effectMod) {
+				segment.damage = $segment.find('[name="segment_damage"]').val();
+			}
 
 			if (segment.spinMod) {
 				segment.spin = $segment.find('[name="segment_spin_effect"]').val();
-			}
-
-			if (segment.effectMod) {
-				segment.effect = $segment.find('[name="segment_effect"]').val();
 			}
 			break;
 		case 'PURPLE':
@@ -473,11 +448,7 @@ WG.Moveset.prototype.generateMove =  function(segment) {
 		case 'WHITE':
 		case 'GOLD':
 			damage = segment.damage;
-
-			if (segment.effectMod) {
-				name += '*';
-				effect = '*' + segment.effect;
-			}
+			effect = segment.effectMod + segment.effect;
 
 			if (segment.spinMod) {
 				spin = segment.spin;
@@ -553,6 +524,14 @@ WG.Display.prototype.notify = function(text) {
 	}
 }
 
+WG.Wheel.prototype.insertSegmentName = function(br, er) {
+	
+}
+
+WG.Wheel.prototype.insertSegmentDamage = function(br, er) {
+	
+}
+
 WG.Wheel.prototype.generateSegment = function(br, er) {
 	var bx = 200 + 200 * Math.cos(br);
 	var by = 200 + 200 * Math.sin(br);
@@ -587,9 +566,9 @@ WG.Wheel.prototype.insertSegment = function(segment, br) {
 		'stroke-width': 3
 	});
 
-	// Add damage
+	this.insertSegmentDamage(br, er);
 
-	// Add move
+	this.insertSegmentName(br, er);
 
 	this.segments.push(path);
 
