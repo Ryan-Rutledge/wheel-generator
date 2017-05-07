@@ -6,12 +6,12 @@ var WG = {
 		GRAY: '#333',
 		RED: '#E04C4C',
 		WHITE: '#EEE',
-		GOLD: '#EDB34B',
+		GOLD: '#E9D149',
 		PURPLE: '#CA6FE6',
 		BLUE: '#52BCE8',
 		DARK_RED: '#DC3636',
 		DARK_WHITE: '#E1E1E1',
-		DARK_GOLD: '#EBA934',
+		DARK_GOLD: '#E6CB32',
 		DARK_PURPLE: '#C259E2',
 		DARK_BLUE: '#3BB3E5'
 	},
@@ -91,20 +91,19 @@ var WG = {
 			var $segment = $this.closest('.segment');
 			var $menu = $this.parent().prev();
 			var $spinMod = $segment.find('[name="segment_spin_modifier"]');
-			var $effectMod = $segment.find('[name="segment_effect_modifier"]');
-			var $stars = $segment.find('[name="segment_stars"]');
 			var $effect = $segment.find('[name="segment_effect"]').parent();
+			var $stars = $segment.find('[name="segment_stars"]');
 			var $damage = $segment.find('[name="segment_damage"]');
 			var $name = $segment.find('[name="segment_name"]');
 
 			var color = $this.val();
 
 			$segment.css('background-color', WG.COLORS[color]);
+			$segment.find('label .modifier-flag').hide();
 
 			switch (color) {
 				case 'RED':
 					$spinMod.hide();
-					$effectMod.hide();
 					$stars.hide();
 					$effect.slideUp();
 					$damage.hide();
@@ -116,18 +115,15 @@ var WG = {
 				case 'GOLD':
 					$stars.hide();
 					$spinMod.show();
-					$effectMod.show();
 					$effect.show();
 
 					$spinMod.next().children(':first').click();
-					$effectMod.next().children(':first').click();
-					$damage.show();
+					$damage.val(10).show();
 
-					$name.attr('placeholder', 'Quick Attack').val($name.val() === 'Miss' ? '' : $name.val());
+					$name.attr('placeholder', segment.type === 'GOLD' ? 'Quick Attack' : 'Scratch').val($name.val() === 'Miss' ? '' : $name.val());
 					break;
 				case 'PURPLE':
 					$spinMod.hide();
-					$effectMod.hide();
 					$stars.show();
 					$stars.next().children(':first').click();
 					$effect.slideDown();
@@ -138,7 +134,6 @@ var WG = {
 				case 'BLUE':
 					$stars.hide();
 					$spinMod.hide();
-					$effectMod.hide();
 					$effect.slideDown();
 					$damage.hide();
 
@@ -169,6 +164,20 @@ var WG = {
 			}
 			else {
 				$ability.slideUp();
+			}
+		});
+
+		// Handle segment spin modifier change
+		$form.find('[name="segment_damage"]').change(function() {
+			var $segment = $(this).closest('.segment');
+			var $spinMod = $segment.find('[name="segment_spin_modifier"]').parent();
+
+			if ($(this).val()) {
+				$spinMod.show();
+			}
+			else {
+				$segment.find('.segment-spin-modifier').first().click();
+				$spinMod.hide();
 			}
 		});
 
@@ -234,7 +243,7 @@ var WG = {
 
 		// Handle new segment events
 		$form.find('.new-segment').click(function() {
-			var $miss = self.$segments.children().has('[name="segment_type"][value="RED"]').first();
+			var $miss = self.$segments.children(':first, :last').has('[name="segment_type"][value="RED"]');
 
 			// Decrease miss size
 			var $size = $miss.find('[name="segment_size"]');
@@ -249,7 +258,7 @@ var WG = {
 			}
 
 			// Add segment
-			$form.find('.segments').prepend($newSegment);
+			$form.find('.segments').append($newSegment);
 
 			// Set segment width
 			$newSegment.find('[name="segment_size"]').val(WG.MIN_SIZE);
@@ -301,20 +310,28 @@ WG.Form.prototype.generateSegment = function($segment) {
 	segment.size = $segment.find('[name="segment_size"]').val();
 	segment.type = $segment.find('[name="segment_type"]').val();
 
+	if (!segment.name) {
+		segment.error = 'Missing name of attack';
+		return segment;
+	}
+
 	switch (segment.type) {
 		case 'WHITE':
 		case 'GOLD':
 			segment.spinMod = $segment.find('[name="segment_spin_modifier"]').val();
-			segment.effectMod = $segment.find('[name="segment_effect_modifier"]').val();
 			segment.effect = $segment.find('[name="segment_effect"]').val();
-
-			if (!segment.effect || segment.effectMod) {
-				segment.damage = $segment.find('[name="segment_damage"]').val();
-			}
+			segment.damage = $segment.find('[name="segment_damage"]').val();
 
 			if (segment.spinMod) {
 				segment.spin = $segment.find('[name="segment_spin_effect"]').val();
+				break;
 			}
+
+			if (!segment.damage && (segment.spinMod || !segment.effect)) {
+				segment.error = 'Missing attack damage';
+				break;
+			}
+
 			break;
 		case 'PURPLE':
 			segment.damage = $segment.find('[name="segment_stars"]').val();
@@ -341,7 +358,7 @@ WG.Form.prototype.generateFigure = function() {
 	var $sizes = self.$segments.find('[name="segment_size"]');
 	for (var i = 0; i < $sizes.length; i++) {
 		if ($sizes.eq(i).val() % WG.MIN_SIZE !== 0) {
-			return { error: 'Wheel sizes must be divisible by ' + WG.MIN_SIZE + '.' };
+			return { error: 'Segment sizes must be divisible by ' + WG.MIN_SIZE + '.' };
 		}
 	}
 
@@ -361,9 +378,20 @@ WG.Form.prototype.generateFigure = function() {
 	}
 
 	figure.segments = [];
+	var error = false;
 	self.$segments.find('.segment').each(function(_, segment) {
-		figure.segments.push(self.generateSegment($(segment)));
+		var segment = figure.segments.push(self.generateSegment($(segment)));
+
+		if (segment.error) { error = true; }
 	});
+
+	if (error) {
+		figure = {
+			error: figure.segments.map(function(segment) {
+				return segment.error;
+			}).join('<br />')
+		};
+	}
 
 	return figure;
 };
@@ -438,6 +466,19 @@ WG.Moveset.prototype.TEMPLATE = $(
 
 WG.Moveset.prototype.generateMove =  function(segment) {
 	var $move = WG.Moveset.prototype.TEMPLATE.clone().addClass(segment.type.toLowerCase() + '-move');
+
+	if (segment.error) {
+		$move.find('tr:not(:last)').remove();
+		$move.prepend(
+			$('<tr>').append(
+				$('<td class="text-center" rowspan="2" colspan="3">').append(
+					$('<em>').text(segment.error)
+				)
+			)
+		);
+		return $move;
+	}
+
 	var size = segment.size;
 	var name = segment.name;
 	var damage = '';
@@ -448,7 +489,12 @@ WG.Moveset.prototype.generateMove =  function(segment) {
 		case 'WHITE':
 		case 'GOLD':
 			damage = segment.damage;
-			effect = segment.effectMod + segment.effect;
+			effect = segment.effect;
+
+			if (effect && damage) {
+				effect = '*' + effect;
+				name += '*';
+			}
 
 			if (segment.spinMod) {
 				spin = segment.spin;
@@ -467,9 +513,9 @@ WG.Moveset.prototype.generateMove =  function(segment) {
 			break;
 	}
 
-	$move.find('.figure-move-name').html(name);
-	$move.find('.figure-move-damage').html(damage);
-	$move.find('.figure-move-size').html(size);
+	$move.find('.figure-move-name').text(name);
+	$move.find('.figure-move-damage').text(damage);
+	$move.find('.figure-move-size').text(size);
 
 	if (spin || effect) {
 		$move.find('.figure-move-effect').text(spin + ' ' + effect);
@@ -542,9 +588,12 @@ WG.Wheel.prototype.generateSegment = function(br, er) {
 };
 
 WG.Wheel.prototype.insertSegment = function(segment, br) {
+	this.paper.setStart();
+
 	var er = br + 2 * Math.PI * (Math.min(segment.size, WG.WHEEL_SIZE - 0.00001) / WG.WHEEL_SIZE);
 	var path = this.generateSegment(br, er);
 	path.attr({ 'fill': WG.COLORS[segment.type] });
+
 
 	// add stripes
 	var options = {
@@ -566,13 +615,16 @@ WG.Wheel.prototype.insertSegment = function(segment, br) {
 		'stroke-width': 3
 	});
 
-	this.insertSegmentDamage(br, er);
-
+	// Apply label
 	this.insertSegmentName(br, er);
 
-	this.segments.push(path);
+	// Apply damage
+	this.insertSegmentDamage(br, er);
 
-	return er;
+	// Add segment to segment list
+	this.segments.push(this.paper.setFinish());
+
+	return er - br;
 };
 
 WG.Wheel.prototype.update = function(figure) {
@@ -581,9 +633,11 @@ WG.Wheel.prototype.update = function(figure) {
 	self.segments = self.paper.set();
 
 	// Insert segments
-	var r = Math.PI * 0.5;
+	var r = 0;
+	var sr = 0;
 	figure.segments.forEach(function(segment) {
-		r = self.insertSegment.call(self, segment, r);
+		sr = self.insertSegment.call(self, segment, r);
+		r += sr;
 	});
 
 	// Add border
@@ -600,16 +654,19 @@ WG.Wheel.prototype.update = function(figure) {
 		'fill': WG.COLORS.BLACK
 	});
 
-	var rim = self.paper.set();
-	var tRim = self.paper.circle(203, 197, 200);
-	var bRim = self.paper.circle(197, 203, 200);
+	// Rotate segments
+	self.segments.rotate(90 + ((sr / 2) * 180 / Math.PI), 200, 200);
 
-	tRim.attr({ 'stroke': '#aaa' });
-	bRim.attr({ 'stroke': '#555' });
+	// Apply edges
+	var edge = self.paper.set();
+	var tEdge = self.paper.circle(203, 197, 200);
+	var bEdge = self.paper.circle(197, 203, 200);
+	tEdge.attr({ 'stroke': '#aaa' });
+	bEdge.attr({ 'stroke': '#555' });
+	edge.push(tEdge);
+	edge.push(bEdge);
+	edge.attr({ 'stroke-width': 4, });
 
-	rim.push(tRim);
-	rim.push(bRim);
-	rim.attr({ 'stroke-width': 4, });
 
-	rim.toBack();
+	edge.toBack();
 };
