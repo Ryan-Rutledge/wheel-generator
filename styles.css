@@ -89,70 +89,42 @@
 	color: #77b;
 }
 
-.figure-move tr:nth-child(2) td {
-	background-color: #eee;
-}
-
 .figure-move.red-move tr:first-child,
 .figure-move.red-move .figure-move-size-container:before,
-.figure-move.red-move .figure-move-size-container:after {
-	background-color: #E04C4C;
-}
-.figure-move.red-move td {
-	border-color: #D42525;
-}
-.figure-move.red-move td.figure-move-size-container {
-	background-color: #D42525;
-}
+.figure-move.red-move .figure-move-size-container:after { background-color: #e04c4c; }
+.figure-move.red-move td { border-color: #cc2323; }
+.figure-move.red-move td.figure-move-size-container { background-color: #cc2323; }
+.figure-move.red-move tr:nth-child(2) td { background-color: #f7cece; }
+
 .figure-move.white-move tr:first-child,
 .figure-move.white-move .figure-move-size-container:before,
-.figure-move.white-move .figure-move-size-container:after {
-	background-color: #EEE;
-}
-.figure-move.white-move td {
-	border-color: #D4D4D4;
-}
-.figure-move.white-move td.figure-move-size-container {
-	background-color: #D4D4D4;
-}
+.figure-move.white-move .figure-move-size-container:after { background-color: #eee; }
+.figure-move.white-move td { border-color: #d5d5d5; }
+.figure-move.white-move td.figure-move-size-container { background-color: #cfcfcf; }
+.figure-move.white-move tr:nth-child(2) td { background-color: #fff; }
+
 .figure-move.gold-move tr:first-child,
 .figure-move.gold-move .figure-move-size-container:before,
-.figure-move.gold-move .figure-move-size-container:after {
-	background-color: #E9D149;
-}
-.figure-move.gold-move td {
-	border-color: #E6CB32;
-}
-.figure-move.gold-move td.figure-move-size-container {
-	background-color: #E6CB32;
-}
+.figure-move.gold-move .figure-move-size-container:after { background-color: #e9d149; }
+.figure-move.gold-move td { border-color: #dabe1a; }
+.figure-move.gold-move td.figure-move-size-container { background-color: #dabe1a; }
+.figure-move.gold-move tr:nth-child(2) td { background-color: #faf4d2; }
+
 .figure-move.purple-move tr:first-child,
 .figure-move.purple-move .figure-move-size-container:before,
-.figure-move.purple-move .figure-move-size-container:after {
-	background-color: #CA6FE6;
-}
-.figure-move.purple-move td {
-	border-color: #BA44DE;
-}
-.figure-move.purple-move td.figure-move-size-container {
-	background-color: #BA44DE;
-}
+.figure-move.purple-move .figure-move-size-container:after { background-color: #ca6fe6; }
+.figure-move.purple-move td { border-color: #b73bdd; }
+.figure-move.purple-move td.figure-move-size-container { background-color: #b73bdd; }
+.figure-move.purple-move tr:nth-child(2) td { background-color: #faf1fd; }
+
 .figure-move.blue-move tr:first-child,
 .figure-move.blue-move .figure-move-size-container:before,
-.figure-move.blue-move .figure-move-size-container:after {
-	background-color: #52BCE8;
-}
-.figure-move.blue-move td {
-	border-color: #25ABE2;
-}
-.figure-move.blue-move td > .figure-move-size-container {
-	background-color: #25ABE2;
-}
+.figure-move.blue-move .figure-move-size-container:after { background-color: #52bce8; }
+.figure-move.blue-move td { border-color: #1ea6df; }
+.figure-move.blue-move td > .figure-move-size-container { background-color: #1ea6df; }
+.figure-move.blue-move tr:nth-child(2) td { background-color: #d9f0fa; }
 
-.figure-moveset td, .figure-moveset th, .figure-moveset thead {
-	border-color: #111;
-}
-
+.figure-moveset td, .figure-moveset th, .figure-moveset thead { border-color: #111; }
 .figure-moveset th { font-size: 0.8em; }
 .figure-moveset tr { height: 1em; line-height: 1em; }
 .figure-moveset .figure-move-separator { height: 2px; }
@@ -161,6 +133,11 @@
 .figure-moveset td.figure-move-name { border-right: none; }
 .figure-moveset td.figure-move-damage { border-left: none; }
 .figure-moveset .figure-move:hover:not(.gu-mirror) { opacity: 0.9; }
+
+.figure-move.star-count .figure-move-name:after { font-family: FontAwesome; padding-left: 1em; }
+.figure-move.star-count-1 .figure-move-name:after { content: "\f005"; }
+.figure-move.star-count-2 .figure-move-name:after { content: "\f005 \f005"; }
+.figure-move.star-count-3 .figure-move-name:after { content: "\f005 \f005 \f005"; }
 
 .figure-move .figure-move-size-container {
 	position: relative;
@@ -218,8 +195,8 @@
 	z-index: 3;
 }
 
-.figure-wheel-container {
-	min-height: 100%;
+.figure-wheel-container svg {
+	height: 100%;
 }
 
 .figure-wheel,
