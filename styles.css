@@ -1,9 +1,3 @@
-
-[name="segment_stars"] {
-	font-family: FontAwesome;
-	font-style: normal;
-}
-
 [name="segment_name"] {
 	border-color: #ddd;
 }
@@ -60,6 +54,7 @@
 	display: block;
 	cursor: pointer;
 	font-size: 24px;
+	line-height: 1em;
 }
 
 .figure-header {
@@ -152,10 +147,14 @@
 .figure-moveset td.figure-move-damage { border-left: none; }
 .figure-moveset .figure-move:hover:not(.gu-mirror) { opacity: 0.9; }
 
+.segment-spin-modifier, [name="segment_spin_modifier"]:before,
 .segment-stars, [name="segment_stars"]:before {
 	font-size: 1.5em;
 	font-weight: bold;
 }
+
+[name="segment_spin_modifier"][value="×"]:before { content: "×" }
+[name="segment_spin_modifier"][value="+"]:before { content: "+" }
 
 .figure-move.star-count .figure-move-name:after { padding-left: 1ex; }
 

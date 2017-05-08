@@ -94,7 +94,7 @@ var WG = {
 		$form.find('.dropdown-item-option').click(function() {
 			var $this = $(this);
 			var $menu = $this.parent().prev();
-			$menu.html($this.data('val') === undefined ? $this.text() : $this.data('val'));
+			$menu.html($this.data('val'));
 			$menu.val($this.val());
 		});
 
