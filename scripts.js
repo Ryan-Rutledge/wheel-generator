@@ -380,13 +380,16 @@ WG.Form.prototype.extractSegment = function($segment) {
 			segment.effect = $segment.find('[name="segment_effect"]').val();
 			segment.damage = parseInt($segment.find('[name="segment_damage"]').val());
 
-			if (segment.spinMod) {
-				segment.spin = $segment.find('[name="segment_spin_effect"]').val();
-				break;
-			}
+	 		if (isNaN(segment.damage)) {
+				segment.damage = undefined;
 
-			if (!segment.damage && (segment.spinMod || !segment.effect)) {
-				segment.error = 'Missing attack damage';
+				if (!segment.effect) {
+					segment.error = 'Missing damage/effect';
+					break;
+				}
+			}
+			else if (segment.spinMod) {
+				segment.spin = $segment.find('[name="segment_spin_effect"]').val();
 				break;
 			}
 
@@ -748,12 +751,14 @@ WG.Wheel.prototype.insertSegment = function(segment, br) {
 	});
 
 	// Apply label
-	this.insertSegmentName(br, er, segment.name + (segment.effect ? '*' : ''));
+	this.insertSegmentName(br, er, segment.name + (segment.effect && segment.damage ? '*' : ''));
 
 	switch (segment.type) {
 		case 'GOLD':
 		case 'WHITE':
-			this.insertSegmentDamage(br, er, segment.damage + segment.spinMod);
+			if (segment.damage !== undefined) {
+				this.insertSegmentDamage(br, er, segment.damage + segment.spinMod);
+			}
 			break;
 		case 'PURPLE':
 			this.insertSegmentStars(br, er, segment.damage);
