@@ -25,6 +25,7 @@ var WG = {
 	Display: function(form, wheel, header, moveset, $notification) {
 		var self = this;
 		self.$notification = $notification;
+		var index;
 
 		moveset.drake.on('drag', function(el) {
 			index = $(el).index() - 1;
@@ -33,7 +34,6 @@ var WG = {
 		moveset.drake.on('dragend', function(el) {
 			var new_index = $(el).index() - 1;
 			form.move(index, new_index);
-			index = undefined;
 		});
 
 		form.onChange(function(figure) {
@@ -472,7 +472,7 @@ WG.Form.prototype.move = function(old_index, new_index) {
 		self.$segments.append($segment);
 	}
 
-	self.change();
+	self.change(true);
 };
 
 WG.Form.prototype.fillMiss = function($exclude) {
