@@ -684,15 +684,14 @@ WG.Wheel.prototype.insertSegmentName = function(br, er, text) {
 
 		cr -= t;
 	});
-}
+};
 
 WG.Wheel.prototype.insertSegmentStars = function(br, er, starCount) {
 	var stars = ['★', '★', '★'].splice(0, starCount);
-	
-	this.insertSegmentDamage(br, er, stars.join(''), true);
-}
+	this.insertSegmentDamage(br, er, stars.join(''));
+};
 
-WG.Wheel.prototype.insertSegmentDamage = function(br, er, damage, stars) {
+WG.Wheel.prototype.insertSegmentDamage = function(br, er, damage) {
 	var radius = 110;
 	var r = er - br;
 	var c = (r / 2) + br;
@@ -704,12 +703,12 @@ WG.Wheel.prototype.insertSegmentDamage = function(br, er, damage, stars) {
 	this.paper.text(cx, cy, damage).attr({
 		'fill': WG.COLORS.BLACK,
 		'font-family': 'sans-serif',
-		'font-size': (Math.min(Math.PI / 1.5, r * 1.2) * radius) / (stars ? 3 : damage.length),
+		'font-size': (Math.min(Math.PI / 1.5, r * 1.2) * radius) / (damage.length < 3 ? 3 : damage.length),
 		'font-weight': 'bold',
 		'text-anchor': 'middle',
 		'transform': 'r ' + (d - 90)
 	});
-}
+};
 
 WG.Wheel.prototype.generateSegment = function(br, er) {
 	var bx = 200 + 200 * Math.cos(br);
