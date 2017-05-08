@@ -48,6 +48,19 @@ var WG = {
 			}
 		});
 
+		if (localStorage) {
+			var figure = localStorage.getItem('figure');
+
+			if (figure) {
+				try {
+					form.update(JSON.parse(figure));
+				}
+				catch (e) {
+					console.error('Unable to load figure data from cache: ' + e);
+				}
+			}
+		}
+
 		form.change(true);
 	},
 	Header: function($header) {
@@ -101,31 +114,28 @@ var WG = {
 
 			$segment.css('background-color', WG.COLORS[color]);
 
+			var defaultNames = {
+				'RED': 'Miss',
+				'WHITE': 'Scratch',
+				'GOLD': 'Quick Attack',
+				'PURPLE': 'Sing',
+				'BLUE': 'Dodge'
+			}
+
 			switch (color) {
 				case 'RED':
 					$spinMod.hide();
 					$stars.hide();
 					$effect.slideUp();
 					$damage.hide();
-
-					placeholder = 'Miss';
 					break;
 				case 'WHITE':
 				case 'GOLD':
 					$stars.hide();
 					$spinMod.show();
 					$effect.show();
-
 					$spinMod.next().children(':first').click();
 					$damage.val(10).show();
-
-					if (color === 'GOLD') {
-						placeholder = 'Quick Attack';
-					}
-					else {
-						placeholder = 'Scratch';
-					}
-
 					break;
 				case 'PURPLE':
 					$spinMod.hide();
@@ -133,23 +143,17 @@ var WG = {
 					$stars.next().children(':first').click();
 					$effect.slideDown();
 					$damage.hide();
-
-					placeholder = 'Fly Away';
 					break;
 				case 'BLUE':
 					$stars.hide();
 					$spinMod.hide();
 					$effect.slideDown();
 					$damage.hide();
-
-					placeholder = 'Dodge';
 					break;
 			}
 
-			$name.attr('placeholder', placeholder);
-			if (!$name.val() || $name.val() === 'Miss') {
-				$name.val(placeholder);
-			}
+			$name.attr('placeholder', defaultNames[color]);
+			$name.val(defaultNames[color]);
 		});
 
 		// Handle segment spin modifier change
@@ -423,14 +427,13 @@ WG.Form.prototype.extractFigure = function() {
 		}
 	}
 
-	var type1 = self.$form.find('[name="figure_type_1"]').val();
-	var type2 = self.$form.find('[name="figure_type_2"]').val();
-
 	figure.name    = self.$form.find('[name="figure_name"]').val();
 	figure.mp      = self.$form.find('[name="figure_mp"]').val();
 	figure.ability = self.$form.find('[name="figure_ability"]').val();
 	figure.type    = [];
 
+	var type1 = self.$form.find('[name="figure_type_1"]').val();
+	var type2 = self.$form.find('[name="figure_type_2"]').val();
 	if (type1) { figure.type.push(type1); }
 	if (type2) { figure.type.push(type2); }
 
@@ -520,6 +523,19 @@ WG.Form.prototype.change = function(now) {
 		self.changeTimeout = setTimeout(function() {
 			self.handleChange.call(self);
 		}, 500);
+	}
+
+	// Save changes
+	if (localStorage) {
+		if (self.saveTimeout) clearTimeout(self.saveTimeout);
+		self.saveTimeout = setTimeout(function() {
+				try {
+					localStorage.setItem('figure', JSON.stringify(self.extractFigure()));
+				}
+				catch (e) {
+					console.error('Unable to save figure data to cache: ' + e);
+				}
+		}, 30000);
 	}
 };
 
