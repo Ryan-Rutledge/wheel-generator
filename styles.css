@@ -100,6 +100,8 @@
 	color: #77b;
 }
 
+.figure-move tr:nth-child(2) td { font-size: 12px; }
+
 .figure-move.red-move tr:first-child,
 .figure-move.red-move .figure-move-size-container:before,
 .figure-move.red-move .figure-move-size-container:after { background-color: #e04c4c; }
@@ -150,10 +152,22 @@
 .figure-moveset td.figure-move-damage { border-left: none; }
 .figure-moveset .figure-move:hover:not(.gu-mirror) { opacity: 0.9; }
 
-.figure-move.star-count .figure-move-name:after { font-family: FontAwesome; padding-left: 1em; }
-.figure-move.star-count-1 .figure-move-name:after { content: "\f005"; }
-.figure-move.star-count-2 .figure-move-name:after { content: "\f005 \f005"; }
-.figure-move.star-count-3 .figure-move-name:after { content: "\f005 \f005 \f005"; }
+.segment-stars, [name="segment_stars"]:before {
+	font-size: 1.5em;
+	font-weight: bold;
+}
+
+.figure-move.star-count .figure-move-name:after { padding-left: 1ex; }
+
+.figure-move.star-count-1 .figure-move-name:after,
+[name="segment_stars"][value="1"]:before,
+.segment-stars[value="1"]:after { content: "★"; }
+.figure-move.star-count-2 .figure-move-name:after,
+[name="segment_stars"][value="2"]:before,
+.segment-stars[value="2"]:after  { content: "★★"; }
+.figure-move.star-count-3 .figure-move-name:after,
+[name="segment_stars"][value="3"]:before,
+.segment-stars[value="3"]:after  { content: "★★★"; }
 
 .figure-move .figure-move-size-container {
 	position: relative;
