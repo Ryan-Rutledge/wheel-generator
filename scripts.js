@@ -52,16 +52,21 @@ var WG = {
 			var figure = localStorage.getItem('figure');
 
 			if (figure) {
+				form.changeDisabled = true;
+
 				try {
 					form.update(JSON.parse(figure));
 				}
 				catch (e) {
 					console.error('Unable to load figure data from cache: ' + e);
+					form.update({ segments: [ { type: 'RED', size: '96', name: 'Miss' } ] });
 				}
+
+				form.changeDisabled = false;
 			}
 		}
 
-		form.change(true);
+		form.change();
 	},
 	Header: function($header) {
 		var self = this;
@@ -205,13 +210,14 @@ var WG = {
 		$form
 			// Handle segment deletion
 			.find('.delete-segment').click(function() {
-				$(this).closest('.segment').animate(
-					{ opacity: 0, height: 0, padding: 0, margin: 0},
-					{ duration: 400, queue: false, complete: function() {
-						$(this).remove();
+				var $segment = $(this).closest('.segment');
+				
+				$segment
+					.slideUp(function() {
+						$segment.remove();
 						self.fillMiss();
-						self.change.call(self, 'delete');
-					} });
+						self.change.call(self);
+					});
 			})
 
 			// Handle hover effect
@@ -228,7 +234,7 @@ var WG = {
 		});
 
 		drake.on('dragend', function(el) {
-			self.change.call(self, 'move');
+			self.change.call(self);
 		});
 
 		// Handle segment size limits
@@ -245,10 +251,10 @@ var WG = {
 
 		// Add change event handlers
 		$form.find('textarea, input, [name]').change(function() {
-			self.change.call(self, 'data');
+			self.change.call(self, true);
 		});
-		$form.find('button').click(function() {
-			self.change.call(self, 'data');
+		$form.find('.dropdown-item-option').click(function() {
+			self.change.call(self);
 		});
 
 		// Create a blank segment template
@@ -256,16 +262,12 @@ var WG = {
 
 		// Handle new segment events
 		$form.find('.new-segment').click(function() {
-			var $miss = self.$segments.children(':first, :last').has('[name="segment_type"][value="RED"]');
-
-			// Decrease miss size
-			var $size = $miss.find('[name="segment_size"]');
-			$size.val($size.val() - WG.MIN_SIZE);
+			self.changeDisabled = true;
 
 			var $newSegment = self.$segmentClone.clone(true).hide();
 
 			// If next to a miss
-			if ($miss.get(0)) {
+			if (self.$segments.children(':first, :last').has('[name="segment_type"][value="RED"]').get(0)) {
 				// Add white segment
 				$newSegment.find('.segment-type[value="WHITE"]').click();
 			}
@@ -278,8 +280,10 @@ var WG = {
 
 			// animate insertion
 			$newSegment.slideDown();
+
 			self.fillMiss();
-			self.change.call(self, 'add');
+			self.changeDisabled = false;
+			self.change.call(self);
 		});
 
 		// Setup default miss
@@ -338,10 +342,11 @@ WG.Form.prototype.generateSegment = function(segment) {
 
 WG.Form.prototype.update = function(figure) {
 	var self = this;
+	var disabled = self.changeDisabled;
 	self.changeDisabled = true;
 	self.$form.find('[name="figure_name"]').val(figure.name);
-	self.$form.find('[name="figure_type_1"]').val(figure.type[0]);
-	self.$form.find('[name="figure_type_2"]').val(figure.type[1]);
+	self.$form.find('[name="figure_type_1"]').val(figure.type && figure.type[0]);
+	self.$form.find('[name="figure_type_2"]').val(figure.type && figure.type[1]);
 	self.$form.find('[name="figure_mp"]').val(figure.mp);
 
 	if (figure.ability) {
@@ -354,13 +359,15 @@ WG.Form.prototype.update = function(figure) {
 	}
 
 	self.$segments.empty();
-	figure.segments.forEach(function(segment) {
-		self.$segments.append(
-			self.generateSegment.call(self, segment)
-		);
-	});
+	if (figure.segments) {
+		figure.segments.forEach(function(segment) {
+			self.$segments.append(
+				self.generateSegment.call(self, segment)
+			);
+		});
+	}
 
-	self.changeDisabled = false;
+	self.changeDisabled = disabled;
 
 	self.change();
 };
@@ -472,7 +479,7 @@ WG.Form.prototype.move = function(old_index, new_index) {
 		self.$segments.append($segment);
 	}
 
-	self.change(true);
+	self.change();
 };
 
 WG.Form.prototype.fillMiss = function($exclude) {
@@ -494,38 +501,24 @@ WG.Form.prototype.fillMiss = function($exclude) {
 };
 
 WG.Form.prototype.handleChange = function() {
-	var figure = this.extractFigure();
+	var self = this;
+	var figure = self.extractFigure();
 
-	var $misses = this.$segments.children().has('[name="segment_type"][value="RED"]');
+	var $misses = self.$segments.children().has('[name="segment_type"][value="RED"]');
 
 	var filled = !$misses.filter(function() {
 		return $(this).find('[name="segment_size"]').val() > WG.MIN_SIZE;
-	}).get(0) && this.total() >= WG.WHEEL_SIZE;
+	}).get(0) && self.total() >= WG.WHEEL_SIZE;
 
 	// Disable button if there is no room left
-	this.$form.find('.new-segment').prop('disabled', filled);
+	self.$form.find('.new-segment').prop('disabled', filled);
 
 	// Apply change handlers
-	this.changeListeners.forEach(function(listener) {
+	self.changeListeners.forEach(function(listener) {
 		listener(figure);
 	});
-};
 
-WG.Form.prototype.change = function(now) {
-	var self = this;
-	if (self.changeDisabled) return;
-	if (self.changeTimeout) clearTimeout(self.changeTimeout);
-
-	if (now) {
-		self.handleChange(self);
-	}
-	else {
-		self.changeTimeout = setTimeout(function() {
-			self.handleChange.call(self);
-		}, 500);
-	}
-
-	// Save changes
+	// Save changes after 10 seconds
 	if (localStorage) {
 		if (self.saveTimeout) clearTimeout(self.saveTimeout);
 		self.saveTimeout = setTimeout(function() {
@@ -535,7 +528,22 @@ WG.Form.prototype.change = function(now) {
 				catch (e) {
 					console.error('Unable to save figure data to cache: ' + e);
 				}
-		}, 30000);
+		}, 10000);
+	}
+};
+
+WG.Form.prototype.change = function(delay) {
+	var self = this;
+	if (self.changeDisabled) return;
+	if (self.changeTimeout) clearTimeout(self.changeTimeout);
+
+	if (delay) {
+		self.changeTimeout = setTimeout(function() {
+			self.handleChange.call(self);
+		}, 500);
+	}
+	else {
+		self.handleChange(self);
 	}
 };
 

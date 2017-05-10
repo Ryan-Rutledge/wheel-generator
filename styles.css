@@ -31,7 +31,17 @@
 
 .segment {
 	position: relative;
-	transition: background-color 400ms, opacity 400ms;
+	border: 1px solid #888;
+}
+.segment:before {
+	content: "";
+	display: block;
+	margin-top: 8px;
+}
+.segment:after {
+	content: "";
+	display: block;
+	margin-bottom: 8px;
 }
 
 .segment h5 {
