@@ -537,6 +537,8 @@ WG.Form.prototype.change = function() {
 				}
 		}, 10000);
 	}
+
+	console.log('now');
 };
 
 WG.Form.prototype.onChange = function(callback) {
@@ -643,6 +645,7 @@ WG.Moveset.prototype.update = function(figure) {
 WG.Header.prototype.update = function(figure) {
 	this.$header.find('.figure-name').text(figure.name || '[Not Provided]');
 	this.$header.find('.figure-type').text(figure.type.join(', ') || '[Not Provided]');
+	this.$header.find('.figure-mp').text(figure.mp || '[Not Provided]');
 	this.$header.find('.figure-ability').text(figure.ability || 'None').show();
 
 	if (figure.ability) {

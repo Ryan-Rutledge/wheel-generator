@@ -22,12 +22,12 @@
 					<div class="row">
 						<fieldset class="form-group col-sm-4 col-12">
 							<label>Figure Name</label>
-							<input type="text" class="form-control" name="figure_name" placeholder="Not Provided" value="">
+							<input type="text" class="form-control" name="figure_name" placeholder="Not Provided" value="" autocomplete="off">
 						</fieldset>
 
 						<fieldset class="form-group col-sm-4 col-12">
 							<label>Figure Type 1</label>
-							<select type="select" class="form-control" name="figure_type_1">
+							<select type="select" class="form-control" name="figure_type_1" autocomplete="off">
 								<option value="" selected>None</option>
 								<option>Normal</option>
 								<option>Fire</option>
@@ -52,7 +52,7 @@
 
 						<fieldset class="form-group col-sm-4 col-12">
 							<label>Figure Type 2</label>
-							<select type="select" class="form-control" name="figure_type_2">
+							<select type="select" class="form-control" name="figure_type_2" autocomplete="off">
 								<option value="" selected>None</option>
 								<option>Normal</option>
 								<option>Fire</option>
@@ -79,7 +79,7 @@
 					<div class="row">
 						<fieldset class="form-group col-sm-6 col-12">
 							<label>Figure MP</label>
-							<select type="select" class="form-control" name="figure_mp">
+							<select type="select" class="form-control" name="figure_mp" autocomplete="off">
 								<option selected>1</option>
 								<option>2</option>
 								<option>3</option>
@@ -94,7 +94,7 @@
 
 					<fieldset class="form-group">
 						<label>Figure Ability Description</label>
-						<textarea type="text" class="form-control" name="figure_effect"></textarea>
+						<textarea type="text" class="form-control" name="figure_effect" autocomplete="off"></textarea>
 					</fieldset>
 
 					<h3 class="mt-4 mb-2">Segments</h3>
@@ -168,6 +168,7 @@
 									<div class="pl-4 pr-4 pt-4 pb-3 figure-header">
 										<div class="row">
 											<h3 class="col-12 pl-0 mb-3"><span class="figure-name"></span></h3>
+											<label class="col-3 text-center .align-middle bg-inverse rounded"><span>MP</span></label> <span class="figure-mp col-9"></span>
 											<label class="col-3 text-center .align-middle bg-inverse rounded"><span>Type</span></label> <span class="figure-type col-9"></span>
 											<label class="col-3 text-center .align-middle bg-inverse rounded"><span>Abilities</span></label> <span class="figure-ability col-9"></span>
 											<p class="figure-effect "></p>
