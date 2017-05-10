@@ -251,7 +251,7 @@ var WG = {
 
 		// Add change event handlers
 		$form.find('textarea, input, [name]').change(function() {
-			self.change.call(self, true);
+			self.change.call(self);
 		});
 		$form.find('.dropdown-item-option').click(function() {
 			self.change.call(self);
@@ -517,6 +517,13 @@ WG.Form.prototype.handleChange = function() {
 	self.changeListeners.forEach(function(listener) {
 		listener(figure);
 	});
+};
+
+WG.Form.prototype.change = function() {
+	var self = this;
+	if (self.changeDisabled) return;
+
+	self.handleChange(self);
 
 	// Save changes after 10 seconds
 	if (localStorage) {
@@ -529,21 +536,6 @@ WG.Form.prototype.handleChange = function() {
 					console.error('Unable to save figure data to cache: ' + e);
 				}
 		}, 10000);
-	}
-};
-
-WG.Form.prototype.change = function(delay) {
-	var self = this;
-	if (self.changeDisabled) return;
-	if (self.changeTimeout) clearTimeout(self.changeTimeout);
-
-	if (delay) {
-		self.changeTimeout = setTimeout(function() {
-			self.handleChange.call(self);
-		}, 500);
-	}
-	else {
-		self.handleChange(self);
 	}
 };
 
