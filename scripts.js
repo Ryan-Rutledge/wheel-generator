@@ -285,6 +285,9 @@ var WG = {
 		
 		// Activate dragula
 		var drake = dragula([$form.find('.segments').get(0)], {
+			moves: function(el, source, handle) {
+				 return $(handle).is('.drag-handle')
+			},
 			direction: 'vertical',
 			mirrorContainer: $form.find('.segments').get(0)
 		});
@@ -398,19 +401,31 @@ var WG = {
 			.attr('stroke-width', 8);
 
 		// Add needle
+		self.needleOn = 'rotate(315 200 200) translate(0 0)';
+		self.needleOff = 'rotate(315 200 200) translate(200 0)';
+
 		var r  = Math.PI * (1 - WG.WHEEL_SIZE / 100);
 		var bx = 200 + 200 * Math.cos(r);
 		var by = 200 + 200 * Math.sin(r);
 		var ex = 200 + 200 * Math.cos(-r);
 		var ey = 200 + 200 * Math.sin(-r);
-		self.needleOn = 'rotate(315 200 200) translate(0 0)';
-		self.needleOff = 'rotate(315 200 200) translate(200 0)';
-
-		self.needle = self.canvas.append('polygon')
+		self.needle = self.canvas.append('g')
+		self.needle.append('polygon')
 			.attr('points', [bx, by, 440, 200, ex, ey, 360, 200].join(' '))
-			.attr('stroke', WG.COLORS.WHITE)
-			.attr('stroke-width', 2)
-			.attr('fill', 'red')
+			.attr('stroke', '#fff')
+			.attr('stroke-width', 1)
+			.attr('fill', '#e03');
+		r /= 2;
+		bx = 200 + 200 * Math.cos(r);
+		by = 200 + 200 * Math.sin(r);
+		ex = 200 + 200 * Math.cos(-r);
+		ey = 200 + 200 * Math.sin(-r);
+		self.needle.append('polygon')
+			.attr('points', [bx, by, 425, 200, ex, ey, 375, 200].join(' '))
+			.attr('stroke', 'none')
+			.attr('fill', '#d02');
+
+		self.needle
 			.attr('transform', self.needleOff)
 	}
 };
@@ -911,7 +926,7 @@ WG.Wheel.prototype.insertSegment = function(segment, br) {
 			break;
 	}
 
-	if (this.fancy || segment.size >= segment.name.length) {
+	if (segment.size > 4 && (segment.size >= segment.name.length || this.fancy)) {
 		this.insertSegmentName(br, er, name, g);
 	}
 
