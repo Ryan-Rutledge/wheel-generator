@@ -896,26 +896,23 @@ WG.Wheel.prototype.insertSegment = function(segment, br) {
 		   .attr('stroke-width', 3);
 	}
 
-	var showName = segment.size >= segment.name.length || this.fancy && segment.size*2 >= segment.name.length;
-
+	var name = segment.name;
 	switch (segment.type) {
 		case 'GOLD':
 		case 'WHITE':
 			if (segment.damage !== undefined) {
 				this.insertSegmentDamage(br, er, segment.damage + segment.spinMod, g);
 			}
-			if (showName) {
-				this.insertSegmentName(br, er, segment.name + (segment.effect && segment.damage ? '*' : ''), g);
-			}
+			
+			name += segment.effect && segment.damage ? '*' : '';
 			break;
 		case 'PURPLE':
 			this.insertSegmentStars(br, er, segment.damage, g);
-
-			if (showName) {
-				this.insertSegmentName(br, er, segment.name, g);
-			}
-
 			break;
+	}
+
+	if (this.fancy || segment.size >= segment.name.length) {
+		this.insertSegmentName(br, er, name, g);
 	}
 
 	return er - br;
