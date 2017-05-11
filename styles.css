@@ -157,6 +157,7 @@
 .figure-moveset td.figure-move-damage { border-left: none; }
 .figure-moveset .figure-move:hover:not(.gu-mirror) { opacity: 0.9; }
 
+.segment-type { font-size: 1.25em; }
 .segment-spin-modifier, [name="segment_spin_modifier"]:before,
 .segment-stars, [name="segment_stars"]:before {
 	font-size: 1.5em;
@@ -234,11 +235,14 @@
 	z-index: 3;
 }
 
-.figure-wheel-container svg {
+.figure-wheel {
 	height: 100%;
 }
 
-.figure-wheel,
-.figure-wheel svg {
+.figure-wheel-container, .figure-wheel {
 	max-width: 100%;
+}
+
+.figure-wheel-center {
+	cursor: pointer;
 }

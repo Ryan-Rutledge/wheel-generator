@@ -48,6 +48,14 @@ var WG = {
 			}
 		});
 
+		// Apply wheel spin
+		wheel.center
+			.attr('title', 'Click to spin')
+			.on('click', function() {
+				wheel.spin();
+			});
+		$(wheel.center.node()).tooltip();
+
 		if (localStorage) {
 			var figure = localStorage.getItem('figure');
 
@@ -91,6 +99,7 @@ var WG = {
 	},
 	Form: function($form) {
 		var self = this;
+		self.fancy = true;
 		self.$form = $form;
 		self.$segments = $form.find('.segments');
 		self.changeListeners = [];
@@ -131,7 +140,12 @@ var WG = {
 				case 'RED':
 					$spinMod.hide();
 					$stars.hide();
-					$effect.slideUp();
+					if (self.fancy) {
+						$effect.slideUp();
+					}
+					else {
+						$effect.hide();
+					}
 					$damage.hide();
 					break;
 				case 'WHITE':
@@ -146,13 +160,23 @@ var WG = {
 					$spinMod.hide();
 					$stars.show();
 					$stars.next().children(':first').click();
-					$effect.slideDown();
+					if (self.fancy) {
+						$effect.slideDown();
+					}
+					else {
+						$effect.show();
+					}
 					$damage.hide();
 					break;
 				case 'BLUE':
 					$stars.hide();
 					$spinMod.hide();
-					$effect.slideDown();
+					if (self.fancy) {
+						$effect.slideDown();
+					}
+					else {
+						$effect.show();
+					}
 					$damage.hide();
 					break;
 			}
@@ -168,19 +192,41 @@ var WG = {
 			var $effect = $segment.find('[name="segment_spin_effect"]').parent();
 
 			if ($this.val()) {
-				$effect.slideDown();
+				if (self.fancy) {
+					$effect.slideDown();
+				}
+				else {
+					$effect.show();
+				}
 			}
 			else {
-				$effect.slideUp();
+				if (self.fancy) {
+					$effect.slideUp();
+					$effect.hide();
+				}
 			}
 		});
 
 		// Handle abliity change
 		$form.find('[name="figure_ability"]').focus(function() {
-			$('[name="figure_effect"]').parent().slideDown();
+			var $ability = $('[name="figure_effect"]').parent();
+
+			if (self.fancy) {
+				$ability.slideDown();
+			}
+			else {
+				$ability.show();
+			}
 		}).blur(function() {
 			if (!$(this).val()) {
-				$('[name="figure_effect"]').parent().slideUp();
+				var $ability = $('[name="figure_effect"]').parent();
+
+				if (self.fancy) {
+					$ability.slideUp();
+				}
+				else {
+					$ability.hide();
+				}
 			}
 		});
 
@@ -211,13 +257,23 @@ var WG = {
 			// Handle segment deletion
 			.find('.delete-segment').click(function() {
 				var $segment = $(this).closest('.segment');
+				function after() {
+					$segment.remove();
+					self.fillMiss();
+					self.change.call(self);
+				}
 				
-				$segment
-					.slideUp(function() {
-						$segment.remove();
-						self.fillMiss();
-						self.change.call(self);
-					});
+				if (self.fancy) {
+					$segment
+						.slideUp(function() {
+							$segment.remove();
+							self.fillMiss();
+							self.change.call(self);
+						});
+				}
+				else {
+					after();
+				}
 			})
 
 			// Handle hover effect
@@ -279,7 +335,12 @@ var WG = {
 			$newSegment.find('[name="segment_size"]').val(WG.MIN_SIZE);
 
 			// animate insertion
-			$newSegment.slideDown();
+			if (self.fancy) {
+				$newSegment.slideDown();
+			}
+			else {
+				$newSegment.show();
+			}
 
 			self.fillMiss();
 			self.changeDisabled = false;
@@ -291,11 +352,66 @@ var WG = {
 	},
 	Wheel: function($wheel) {
 		var self = this;
+		self.r = /^rotate\((\d+(?:\.\d+)?)(?: .*)?\)$/;
+		self.fancy = true;
 		self.$wheel = $wheel;
 
-		self.paper = new Raphael($wheel.get(0), 400, 400);
-		self.paper.setViewBox(-6, -6, 412, 412);
-		self.paper.canvas.setAttribute('preserveAspectRatio', 'xMidYMid');
+		self.canvas = d3.select($wheel.get(0));
+
+		// Apply wheel edges
+		self.canvas.append('circle')
+			.attr('cx', 203)
+			.attr('cy', 197)
+			.attr('r', 200)
+			.attr('fill', 'none')
+			.attr('stroke-width', 4)
+			.attr('stroke', '#aaa');
+		self.canvas.append('circle')
+			.attr('cx', 197)
+			.attr('cy', 203)
+			.attr('r', 200)
+			.attr('fill', 'none')
+			.attr('stroke-width', 4)
+			.attr('stroke', '#555');
+
+		// Apply spinning group
+		self.wheel = self.canvas.append('g')
+			.attr('class', 'figure-wheel-segments');
+
+		// Add center piece
+		self.center = self.canvas.append('circle')
+			.attr('cx', 200)
+			.attr('cy', 200)
+			.attr('r', 50)
+			.attr('stroke', WG.COLORS.GRAY)
+			.attr('stroke-width', 4)
+			.attr('fill', WG.COLORS.BLACK)
+			.attr('class', 'figure-wheel-center');
+
+		// // Apply wheel border
+		self.ring = self.canvas.append('circle')
+			.attr('cx', 200)
+			.attr('cy', 200)
+			.attr('r', 200)
+			.attr('fill', 'none')
+			.attr('stroke', WG.COLORS.BLACK)
+			.attr('stroke-width', 8);
+
+		// Add needle
+		var r  = Math.PI * (1 - WG.WHEEL_SIZE / 100);
+		var bx = 200 + 200 * Math.cos(r);
+		var by = 200 + 200 * Math.sin(r);
+		var ex = 200 + 200 * Math.cos(-r);
+		var ey = 200 + 200 * Math.sin(-r);
+		self.needleOn = 'rotate(315 200 200) translate(0 0)';
+		self.needleOff = 'rotate(315 200 200) translate(200 0)';
+
+		self.needle = self.canvas.append('polygon')
+			.attr('points', [bx, by, 440, 200, ex, ey, 360, 200].join(' '))
+			.attr('stroke', WG.COLORS.WHITE)
+			.attr('stroke-width', 2)
+			.attr('fill', 'red')
+			.attr('transform', self.needleOff)
 	}
 };
 
@@ -537,8 +653,6 @@ WG.Form.prototype.change = function() {
 				}
 		}, 10000);
 	}
-
-	console.log('now');
 };
 
 WG.Form.prototype.onChange = function(callback) {
@@ -669,131 +783,207 @@ WG.Display.prototype.notify = function(text) {
 	}
 }
 
-WG.Wheel.prototype.insertSegmentName = function(br, er, text) {
+WG.Wheel.prototype.insertSegmentName = function(br, er, text, g) {
 	var self = this;
 	var radius = 175;
+	var y = 200 + radius;
 	var r = er - br;
 	var size = Math.min(radius / 5, (r * radius) / (text.length * 1.5));
 
-	var options = {
-		'fill': WG.COLORS.BLACK,
-		'font-family': 'monospace',
-		'font-size': size,
-		'font-weight': 'bold',
-		'text-anchor': 'middle',
-	}
-
-	var tmp = self.paper.text(0, 0, text).attr(options);
-	var letterSize = tmp.getBBox().width / text.length;
+	var tmp = g.append('text')
+		.attr('font-family', 'monospace')
+		.attr('font-size', size)
+		.attr('text-anchor', 'end')
+		.attr('stroke-width', 0)
+		.text(text)
+	var letterSize = tmp.node().getComputedTextLength() / text.length;
 	tmp.remove();
 
-	var t = Math.min(r / text.length, (letterSize / radius) * Math.PI);
-	t = (letterSize / (radius * 1.5)) * Math.PI;
+	var t = (letterSize / (radius * 1.5)) * Math.PI;
 	var padding = (r - t*text.length) / 2;
 
 	// For each letter
 	var cr = er - padding - (t / 2);
-	text.split('').forEach(function(c) {
-		var cx = 200 + radius * Math.cos(cr);
-		var cy = 200 + radius * Math.sin(cr);
+	text.split('').forEach(function(l) {
 		var d = cr * 180 / Math.PI;
-
-		options['transform'] = 'r ' + (d - 90);
-		options['transform'] = 'r ' + (d - 90);
-
-		// Add letter
-		self.paper.text(cx, cy, c).attr(options);;
+		
+		// Create character
+		g.append('text')
+			.attr('x', 200)
+			.attr('y', y)
+			.attr('fill', WG.COLORS.BLACK)
+			.attr('fill', 'color')
+			.attr('font-family', 'monospace')
+			.attr('font-size', size)
+			.attr('font-weight', 'bold')
+			.attr('text-anchor', 'middle')
+			.attr('stroke-width', 0)
+			.attr('dominant-baseline', 'central')
+			.attr('transform', 'rotate(' + (d - 90) + ' 200 200)')
+			.text(l);
 
 		cr -= t;
 	});
 };
 
-WG.Wheel.prototype.insertSegmentStars = function(br, er, starCount) {
+WG.Wheel.prototype.insertSegmentStars = function(br, er, starCount, g) {
 	var stars = ['★', '★', '★'].splice(0, starCount);
-	this.insertSegmentDamage(br, er, stars.join(''));
+	this.insertSegmentDamage(br, er, stars.join(''), g);
 };
 
-WG.Wheel.prototype.insertSegmentDamage = function(br, er, damage) {
+WG.Wheel.prototype.insertSegmentDamage = function(br, er, damage, g) {
 	var radius = 110;
 	var r = er - br;
 	var c = (r / 2) + br;
-	var cx = 200 + radius * Math.cos(c);
-	var cy = 200 + radius * Math.sin(c);
-	var d  = c * 180 / Math.PI;
+	var d  = (c * 180 / Math.PI) - 90;
 
 	// Add text
-	this.paper.text(cx, cy, damage).attr({
-		'fill': WG.COLORS.BLACK,
-		'font-family': 'sans-serif',
-		'font-size': (Math.min(Math.PI / 1.5, r * 1.2) * radius) / (damage.length < 3 ? 3 : damage.length),
-		'font-weight': 'bold',
-		'text-anchor': 'middle',
-		'transform': 'r ' + (d - 90)
-	});
+	var text = g.append('text')
+		.attr('x', 200)
+		.attr('y', 200 + radius)
+		.attr('fill', WG.COLORS.BLACK)
+		.attr('font-family', 'sans-serif')
+		.attr('font-size', (Math.min(Math.PI / 1.5, r * 1.2) * radius) / (damage.length < 3 ? 3 : damage.length))
+		.attr('font-weight', 'bold')
+		.attr('text-anchor', 'middle')
+		.attr('dominant-baseline', 'central')
+		.attr('transform', 'rotate(' + d + ' 200 200)')
+		.text(damage);
+
+	return text;
 };
 
-WG.Wheel.prototype.generateSegment = function(br, er) {
+WG.Wheel.prototype.generateSegment = function(br, er, g) {
 	var bx = 200 + 200 * Math.cos(br);
 	var by = 200 + 200 * Math.sin(br);
 	var ex = 200 + 200 * Math.cos(er);
 	var ey = 200 + 200 * Math.sin(er);
+	var path = g.append('path')
+		.attr('d', ['M', bx, by, 'A 200 200 0', +(er - br >= Math.PI), '1', ex, ey, 'L 200 200 Z'].join(' '));
 
-	return this.paper.path(['M', bx, by, 'A 200 200 0', +(er - br >= Math.PI), '1', ex, ey, 'L 200 200 Z'].join(' '));
+	return path;
 };
 
 WG.Wheel.prototype.insertSegment = function(segment, br) {
-	this.paper.setStart();
-
 	var er = br + 2 * Math.PI * (Math.min(segment.size, WG.WHEEL_SIZE - 0.00001) / WG.WHEEL_SIZE);
-	var path = this.generateSegment(br, er);
-	path.attr({ 'fill': WG.COLORS[segment.type] });
+	var g = this.wheel.append('g');
+	var path = this.generateSegment(br, er, g);
+	path.attr('fill', WG.COLORS[segment.type]);
+	path.attr('stroke', WG.COLORS.GRAY);
+	path.attr('stroke-width', 4);
 
+	if (this.fancy) {
+		// add stripes
+		var options = {
+			'stroke': WG.COLORS.DARK,
+			'stroke-width': 4,
+			'fill': WG.COLORS['DARK_' + segment.type],
+		};
+		var srb = br;
+		var sr = 2 * Math.PI * (2 / WG.WHEEL_SIZE);
+		for (var i = segment.size / 4; i > 0; i--) {
+			this.generateSegment(srb, srb + sr, g)
+				.attr('stroke', 'none')
+				.attr('fill', WG.COLORS['DARK_' + segment.type]);
+			srb += 2 * sr;
+		}
 
-	// add stripes
-	var options = {
-		'stroke': 'none',
-		'fill': WG.COLORS['DARK_' + segment.type],
-	};
-	var srb = br;
-	var sr = 2 * Math.PI * (2 / WG.WHEEL_SIZE);
-	for (var i = segment.size / 4; i > 0; i--) {
-		this.generateSegment(srb, srb + sr).attr(options);
-		srb += 2 * sr;
+		// Apply stroke
+		var stroke = g.append('path')
+		   .attr('d', path.attr('d'))
+		   .attr('stroke', WG.COLORS.GRAY)
+		   .attr('fill', 'none')
+		   .attr('stroke-width', 3);
 	}
 
-	// Apply stroke
-	path = this.paper.path().attr(path.attr());
-	path.attr({
-		'stroke': WG.COLORS.GRAY,
-		'fill': 'none',
-		'stroke-width': 3
-	});
-
-	// Apply label
-	this.insertSegmentName(br, er, segment.name + (segment.effect && segment.damage ? '*' : ''));
+	var showName = segment.size >= segment.name.length || this.fancy && segment.size*2 >= segment.name.length;
 
 	switch (segment.type) {
 		case 'GOLD':
 		case 'WHITE':
 			if (segment.damage !== undefined) {
-				this.insertSegmentDamage(br, er, segment.damage + segment.spinMod);
+				this.insertSegmentDamage(br, er, segment.damage + segment.spinMod, g);
+			}
+			if (showName) {
+				this.insertSegmentName(br, er, segment.name + (segment.effect && segment.damage ? '*' : ''), g);
 			}
 			break;
 		case 'PURPLE':
-			this.insertSegmentStars(br, er, segment.damage);
+			this.insertSegmentStars(br, er, segment.damage, g);
+
+			if (showName) {
+				this.insertSegmentName(br, er, segment.name, g);
+			}
+
 			break;
 	}
-
-	// Add segment to segment list
-	this.segments.push(this.paper.setFinish());
 
 	return er - br;
 };
 
+
+WG.Wheel.prototype.getSpin = function() {
+	var g = this.r.exec(wheel.wheel.attr('transform'));
+	return g && parseFloat(g[1]) || 0;
+};
+
+WG.Wheel.prototype.spin = function() {
+	var self = this;
+	var rotations = (Math.random() * 12 + 8)
+	var needleDuration = 200;
+	var duration = 150 * rotations;
+	var delay = 4000;
+	var d = 360 * rotations + self.getSpin();
+
+	// Show needle
+	self.needle
+		.transition()
+		.delay(duration - needleDuration)
+		.duration(needleDuration)
+		.ease(d3.easeBackIn)
+		.attrTween('transform', function() {
+			return d3.interpolateString(self.needle.attr('transform'), self.needleOn);
+		})
+		.on('end', function() {
+			self.needle
+				.transition()
+				.delay(delay)
+				.ease(d3.easeBackIn)
+				.attrTween('transform', function() {
+					return d3.interpolateString(self.needle.attr('transform'), self.needleOff);
+				})
+		});
+
+	// Rotate
+	self.wheel
+		.transition()
+		.duration(duration)
+		.ease(d3.easeLinear)
+		.attrTween('transform', function() {
+			return d3.interpolateString(self.wheel.attr('transform'), 'rotate(' + d + ' 200 200)');
+		})
+		.on('end', function() {
+			var spin = self.getSpin() % 360;
+			if (spin > self.rotation + 180) {
+				spin = spin - 360;
+			}
+			// Return to normal state
+			self.wheel
+				.transition()
+				.duration(3000 * (Math.abs(self.rotation - spin) / 360) + 1000)
+				.delay(delay)
+				.ease(d3.easeElasticOut)
+				.attrTween('transform', function() {
+					return d3.interpolateString('rotate(' + spin + ' 200 200)', 'rotate(' + self.rotation + ' 200 200)');
+				});
+		});
+};
+
 WG.Wheel.prototype.update = function(figure) {
 	var self = this;
-	self.paper.clear();
-	self.segments = self.paper.set();
+
+	// Clear wheel
+	self.wheel.html('');
 
 	// Insert segments
 	var r = 0;
@@ -803,33 +993,8 @@ WG.Wheel.prototype.update = function(figure) {
 		r += sr;
 	});
 
-	// Add border
-	self.wheel = self.paper.circle(200, 200, 200);
-	self.wheel.attr({
-		'stroke': '#000',
-		'stroke-width': 8
-	});
-
-	var center = self.paper.circle(200, 200, 50);
-	center.attr({
-		'stroke': WG.COLORS.GRAY,
-		'stroke-width': 4,
-		'fill': WG.COLORS.BLACK
-	});
-
-	// Rotate segments
-	self.segments.transform('r ' + (90 + ((sr / 2) * 180 / Math.PI)) + ' 200 200...');
-
-	// Apply edges
-	var edge = self.paper.set();
-	var tEdge = self.paper.circle(203, 197, 200);
-	var bEdge = self.paper.circle(197, 203, 200);
-	tEdge.attr({ 'stroke': '#aaa' });
-	bEdge.attr({ 'stroke': '#555' });
-	edge.push(tEdge);
-	edge.push(bEdge);
-	edge.attr({ 'stroke-width': 4 });
-
-
-	edge.toBack();
+	// Rotate so last segment is centered
+	self.rotation = (90 + ((sr / 2) * 180 / Math.PI))
+	self.wheel
+		.attr('transform', 'rotate(' + self.rotation + ' 200 200)');
 };
