@@ -16,16 +16,49 @@ var WG = {
 		DARK_BLUE: '#44b7e6'
 	},
 	init: function($form, $display) {
-		form = new WG.Form($form);
-		wheel = new WG.Wheel($display.find('.figure-wheel'));
-		header = new WG.Header($display.find('.figure-header'));
-		moveset = new WG.Moveset($display.find('.figure-moveset'));
-		display = new WG.Display(form, wheel, header, moveset, $display.find('.figure-display-notification'));
+		WG.form = new WG.Form($form);
+		WG.wheel = new WG.Wheel($display.find('.figure-wheel'));
+		WG.header = new WG.Header($display.find('.figure-header'));
+		WG.moveset = new WG.Moveset($display.find('.figure-moveset'));
+		WG.display = new WG.Display(WG.form, WG.wheel, WG.header, WG.moveset, $display.find('.figure-display-notification'));
+	},
+	fullscreenInit: function(form, $display) {
+		WG.bigWheel = new WG.Wheel($display.find('.big-wheel'));
+		WG.bigMoveset = new WG.Moveset($display.find('.big-moveset'));
+
+		$(WG.bigWheel.center
+			.attr('title', 'Click to spin')
+			.node()).tooltip();
+
+		function update() {
+			setTimeout(function() {
+				var figure = form.extractFigure();
+				if (figure.error) { figure = { segments: [] }; }
+
+				WG.bigWheel.update.call(WG.bigWheel, figure);
+				WG.bigMoveset.update.call(WG.bigMoveset, figure);
+			}, 100);
+		}
+
+		$('.show-big-display').click(update);
+		update();
 	},
 	Display: function(form, wheel, header, moveset, $notification) {
 		var self = this;
 		self.$notification = $notification;
 		var index;
+
+		moveset.drake = dragula([moveset.$moveset.get(0)], {
+			moves: function(el, source) {
+				return $(el).is('.figure-move');
+			},
+			accepts: function(el, target, source, sibling) {
+				return $(sibling).is('.figure-move');
+			},
+			direction: 'vertical',
+			ignoreInputTextSelection: true,
+			mirrorContainer: moveset.$moveset.get(0)
+		});
 
 		moveset.drake.on('drag', function(el) {
 			index = $(el).index() - 1;
@@ -47,14 +80,6 @@ var WG = {
 				wheel.update(figure);
 			}
 		});
-
-		// Apply wheel spin
-		wheel.center
-			.attr('title', 'Click to spin')
-			.on('click', function() {
-				wheel.spin();
-			});
-		$(wheel.center.node()).tooltip();
 
 		if (localStorage) {
 			var figure = localStorage.getItem('figure');
@@ -81,21 +106,7 @@ var WG = {
 		self.$header = $header;
 	},
 	Moveset: function($moveset) {
-		var self = this;
-		self.$moveset = $moveset;
-		var index;
-
-		self.drake = dragula([$moveset.get(0)], {
-			moves: function(el, source) {
-				return $(el).is('.figure-move');
-			},
-			accepts: function(el, target, source, sibling) {
-				return $(sibling).is('.figure-move');
-			},
-			direction: 'vertical',
-			ignoreInputTextSelection: true,
-			mirrorContainer: $moveset.get(0)
-		});
+		this.$moveset = $moveset;
 	},
 	Form: function($form) {
 		var self = this;
@@ -390,6 +401,11 @@ var WG = {
 			.attr('stroke-width', 4)
 			.attr('fill', WG.COLORS.BLACK)
 			.attr('class', 'figure-wheel-center');
+
+		// Apply wheel spin
+		self.center.on('click', function() {
+			self.spin();
+		});
 
 		// // Apply wheel border
 		self.ring = self.canvas.append('circle')
@@ -935,8 +951,26 @@ WG.Wheel.prototype.insertSegment = function(segment, br) {
 
 
 WG.Wheel.prototype.getSpin = function() {
-	var g = this.r.exec(wheel.wheel.attr('transform'));
+	var g = this.r.exec(this.wheel.attr('transform'));
 	return g && parseFloat(g[1]) || 0;
+};
+
+WG.Wheel.prototype.reset = function(delay) {
+	var self = this;
+	var spin = self.getSpin() % 360;
+	if (spin > self.rotation + 180) {
+		spin = spin - 360;
+	}
+
+	// Return to normal state
+	self.wheel
+		.transition()
+		.duration(3000 * (Math.abs(self.rotation - spin) / 360) + 1000)
+		.delay(delay)
+		.ease(d3.easeElasticOut)
+		.attrTween('transform', function() {
+			return d3.interpolateString('rotate(' + spin + ' 200 200)', 'rotate(' + self.rotation + ' 200 200)');
+		});
 };
 
 WG.Wheel.prototype.spin = function() {
@@ -975,19 +1009,7 @@ WG.Wheel.prototype.spin = function() {
 			return d3.interpolateString(self.wheel.attr('transform'), 'rotate(' + d + ' 200 200)');
 		})
 		.on('end', function() {
-			var spin = self.getSpin() % 360;
-			if (spin > self.rotation + 180) {
-				spin = spin - 360;
-			}
-			// Return to normal state
-			self.wheel
-				.transition()
-				.duration(3000 * (Math.abs(self.rotation - spin) / 360) + 1000)
-				.delay(delay)
-				.ease(d3.easeElasticOut)
-				.attrTween('transform', function() {
-					return d3.interpolateString('rotate(' + spin + ' 200 200)', 'rotate(' + self.rotation + ' 200 200)');
-				});
+			self.reset(delay);
 		});
 };
 

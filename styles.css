@@ -50,7 +50,6 @@
 	position: absolute;
 	top: 4px;
 	display: block;
-	cursor: pointer;
 	font-weight: bold;
 	line-height: 24px;
 	font-size: 24px;
@@ -81,7 +80,7 @@
 	margin-bottom: 0;
 }
 
-.figure-moveset {
+.moveset {
 	border-collapse: separate;
 	border-spacing: 0;
 	background-color: #111;
@@ -89,17 +88,17 @@
 	color: #000;
 }
 
-.figure-moveset th {
+.moveset th {
 	border-width: 0 1px !important;
 }
-.figure-moveset th:first-child {
+.moveset th:first-child {
 	border-left-width: 4px;
 }
-.figure-moveset th:last-child {
+.moveset th:last-child {
 	border-right-width: 4px;
 }
 
-.figure-moveset thead {
+.moveset thead {
 	background-color: #015;
 	color: #77b;
 }
@@ -146,14 +145,14 @@
 .figure-move.blue-move td.figure-move-size-container { background-color: #1ea6df; }
 .figure-move.blue-move tr:nth-child(2) td { background-color: #d9f0fa; }
 
-.figure-moveset td, .figure-moveset th, .figure-moveset thead { border-color: #111; }
-.figure-moveset th { font-size: 0.8em; }
-.figure-moveset tr { height: 1em; line-height: 1em; }
-.figure-moveset .figure-move-separator { height: 2px; }
-.figure-moveset .figure-move-size-container { width: 4em; }
-.figure-moveset .figure-move-damage { width: 4em; }
-.figure-moveset td.figure-move-name { border-right: none; }
-.figure-moveset td.figure-move-damage { border-left: none; }
+.moveset td, .moveset th, .moveset thead { border-color: #111; }
+.moveset th { font-size: 0.8em; }
+.moveset tr { height: 1em; line-height: 1em; }
+.moveset .figure-move-separator { height: 2px; }
+.moveset .figure-move-size-container { width: 4em; }
+.moveset .figure-move-damage { width: 4em; }
+.moveset td.figure-move-name { border-right: none; }
+.moveset td.figure-move-damage { border-left: none; }
 .figure-moveset .figure-move:hover:not(.gu-mirror) { opacity: 0.9; }
 
 .segment-type { font-size: 1.25em; }
@@ -225,9 +224,9 @@
 	width: 100%;
 	height: 100%;
 	position: absolute;
+	top: 0;
 	left: 0;
 	right: 0;
-	top: 0;
 	bottom: 0;
 	background-color: rgba(255, 255, 255, 0.75);
 	color: #000;
@@ -258,4 +257,28 @@
     cursor: -moz-grab;
     cursor: -webkit-grab;
 	touch-action: none;
+}
+
+.big-display {
+	display: none;
+	position: fixed;
+	background-color: #000;
+	top: 0;
+	left: 0;
+	width: 100vw;
+	height: 100vh;
+	z-index: 10;
+	overflow: auto;
+}
+
+.big-display:target {
+	display: block;
+}
+
+.big-display h4 {
+	color: #888;
+}
+
+.big-wheel {
+	width: 100%;
 }

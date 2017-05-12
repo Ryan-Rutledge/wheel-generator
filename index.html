@@ -11,7 +11,7 @@
 
 		<meta name="viewport" content="width=device-width, initial-scale=1">
 	</head>
-	<body onload="WG.init($('.figure-form'), $('.figure-display'))">
+	<body onload="WG.init($('.figure-form'), $('.figure-display')); WG.fullscreenInit(WG.form, $('.big-display'))">
 		<div class="header">
 			<h1 class="text-center mt-4 mb-4">Wheel Generator</h2>
 		</div>
@@ -165,7 +165,7 @@
 						</div>
 						<div class="col-12">
 							<div class="row card-block">
-								<div class="col-12 col-md-6 push-md-6">
+								<div class="col-12 col-md-6 push-md-6 figure-header-container">
 									<div class="pl-4 pr-4 pt-4 pb-3 figure-header">
 										<div class="row">
 											<h3 class="col-12 pl-0 mb-3"><span class="figure-name"></span></h3>
@@ -187,8 +187,8 @@
 
 								<div class="col-12 col-lg-10 offset-lg-1">
 									<div class="pl-4 pr-4 pt-4 pb-2 ">
-										<h5>Wheel Piece</h4>
-										<table class="figure-moveset drag-handle table table-bordered table-sm">
+										<h5>Wheel Piece</h5>
+										<table class="figure-moveset moveset drag-handle table table-bordered table-sm">
 											<thead>
 												<th class="text-center figure-move-size-container figure-move-size">Size</th>
 												<th class="text-center figure-move-name">Attack</th>
@@ -197,9 +197,38 @@
 										</table>
 									</div>
 								</div>
+
+								<div class="col-8 offset-2">
+									<a href="#big-display" class="btn btn-block btn-outline-warning show-big-display">Fullscreen</a>
+								</div>
 							</div>
 						</div>
 					</div>
+				</div>
+			</div>
+		</div>
+
+		<div id="big-display" class="container-fluid big-display p-4">
+			<div class="row">
+				<div class="col-12">
+					<svg class="big-wheel" width="400" height="400" preserveAspectRatio="xMidYMid" viewBox="-6 -6 412 412" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"></svg>
+				</div>
+
+				<div class="col-12 col-lg-10 offset-lg-1">
+					<div class="pl-4 pr-4 pt-4 pb-2 ">
+						<h4>Wheel Piece</h4>
+						<table class="big-moveset moveset table table-bordered table-sm">
+							<thead>
+								<th class="text-center figure-move-size-container figure-move-size">Size</th>
+								<th class="text-center figure-move-name">Attack</th>
+								<th class="text-center figure-move-damage">Damage</th>
+							</thead>
+						</table>
+					</div>
+				</div>
+
+				<div class="col-8 offset-2 mt-2 mb-4">
+					<a href="#" class="btn btn-block btn-outline-warning hide-big-display">Leave Fullscreen</a>
 				</div>
 			</div>
 		</div>
