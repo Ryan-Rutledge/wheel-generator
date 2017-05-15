@@ -252,11 +252,11 @@
 }
 
 .drag-handle {
-	cursor: move;
-	cursor: grab;
-    cursor: -moz-grab;
-    cursor: -webkit-grab;
-	touch-action: none;
+	cursor: move !important;
+	cursor: grab !important;
+    cursor: -moz-grab !important;
+    cursor: -webkit-grab !important;
+	touch-action: none !important;
 }
 
 .big-display {
