@@ -245,18 +245,18 @@
 	cursor: pointer;
 }
 
-.gu-mirror {
-    cursor: grabbing;
-    cursor: -moz-grabbing;
-    cursor: -webkit-grabbing;
+.gu-mirror, .gu-mirror.drag-handle, .gu-mirror .drag-handle {
+    cursor: grabbing !important;
+    cursor: -moz-grabbing !important;
+    cursor: -webkit-grabbing !important;
 }
 
 .drag-handle {
-	cursor: move !important;
-	cursor: grab !important;
-    cursor: -moz-grab !important;
-    cursor: -webkit-grab !important;
-	touch-action: none !important;
+	cursor: move;
+	cursor: grab;
+    cursor: -moz-grab;
+    cursor: -webkit-grab;
+	touch-action: none;
 }
 
 .big-display {
