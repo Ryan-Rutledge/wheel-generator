@@ -25,8 +25,12 @@ var WG = {
 	fullscreenInit: function(form, $display) {
 		WG.bigWheel = new WG.Wheel($display.find('.big-wheel'));
 		WG.bigMoveset = new WG.Moveset($display.find('.big-moveset'));
+		WG.bigHeader = new WG.Header($display.find('.big-header'));
 
 		$(WG.bigWheel.center
+			.on('click', function() {
+				WG.bigWheel.spin();
+			})
 			.attr('title', 'Click to spin')
 			.node()).tooltip();
 
@@ -37,8 +41,14 @@ var WG = {
 
 				WG.bigWheel.update.call(WG.bigWheel, figure);
 				WG.bigMoveset.update.call(WG.bigMoveset, figure);
+				WG.bigHeader.update.call(WG.bigHeader, figure);
 			}, 100);
 		}
+
+		// Hide fullscreen
+		$(document).keyup(function(e) {
+			if (e.keyCode === 27) location.href = '#';
+		});
 
 		$('.show-big-display').click(update);
 		update();
@@ -81,23 +91,14 @@ var WG = {
 			}
 		});
 
-		if (localStorage) {
-			var figure = localStorage.getItem('figure');
+		// Load data into form
+		form.changeDisabled = true;
 
-			if (figure) {
-				form.changeDisabled = true;
-
-				try {
-					form.update(JSON.parse(figure));
-				}
-				catch (e) {
-					console.error('Unable to load figure data from cache: ' + e);
-					form.update({ segments: [ { type: 'RED', size: '96', name: 'Miss' } ] });
-				}
-
-				form.changeDisabled = false;
-			}
+		if (!form.load()) {
+			form.update({ segments: [ { type: 'RED', size: '96', name: 'Miss' } ] });
 		}
+
+		form.changeDisabled = false;
 
 		form.change();
 	},
@@ -402,12 +403,7 @@ var WG = {
 			.attr('fill', WG.COLORS.BLACK)
 			.attr('class', 'figure-wheel-center');
 
-		// Apply wheel spin
-		self.center.on('click', function() {
-			self.spin();
-		});
-
-		// // Apply wheel border
+		// Apply wheel border
 		self.ring = self.canvas.append('circle')
 			.attr('cx', 200)
 			.attr('cy', 200)
@@ -673,21 +669,53 @@ WG.Form.prototype.change = function() {
 	self.handleChange(self);
 
 	// Save changes after 10 seconds
-	if (localStorage) {
-		if (self.saveTimeout) clearTimeout(self.saveTimeout);
-		self.saveTimeout = setTimeout(function() {
-				try {
-					localStorage.setItem('figure', JSON.stringify(self.extractFigure()));
-				}
-				catch (e) {
-					console.error('Unable to save figure data to cache: ' + e);
-				}
-		}, 10000);
-	}
+	if (self.saveTimeout) clearTimeout(self.saveTimeout);
+	self.saveTimeout = setTimeout(function() {
+		self.save();
+	}, 10000);
 };
 
 WG.Form.prototype.onChange = function(callback) {
 	this.changeListeners.push(callback);
+};
+
+WG.Form.prototype.save = function() {
+	var success = true;
+
+	try {
+		if (localStorage) {
+			localStorage.setItem('figure', JSON.stringify(this.extractFigure()));
+		}
+		else {
+			throw new UserException('Local Storage not available.');
+		}
+	}
+	catch (e) {
+		console.error('Unable to save figure data to cache: ' + e);
+		success = false;
+	}
+
+	return success;
+};
+
+WG.Form.prototype.load = function() {
+	var success = true;
+
+	try {
+		if (localStorage) {
+			var figure = localStorage.getItem('figure');
+			this.update(JSON.parse(figure));
+		}
+		else {
+			throw new UserException('Local Storage not available.');
+		}
+	}
+	catch (e) {
+		console.error('Unable to load figure data from cache: ' + e);
+		success = false;
+	}
+
+	return success;
 };
 
 WG.Moveset.prototype.TEMPLATE = $(
@@ -858,7 +886,7 @@ WG.Wheel.prototype.insertSegmentName = function(br, er, text, g) {
 };
 
 WG.Wheel.prototype.insertSegmentStars = function(br, er, starCount, g) {
-	var stars = ['★', '★', '★'].splice(0, starCount);
+	var stars = ['★', '★', '★', '★', '★'].splice(0, starCount);
 	this.insertSegmentDamage(br, er, stars.join(''), g);
 };
 
@@ -1032,3 +1060,8 @@ WG.Wheel.prototype.update = function(figure) {
 	self.wheel
 		.attr('transform', 'rotate(' + self.rotation + ' 200 200)');
 };
+
+$(function() {
+	WG.init($('.figure-form'), $('.figure-display'));
+	WG.fullscreenInit(WG.form, $('.big-display'));
+});
